@@ -1,0 +1,63 @@
+package br.com.fiap.cheffy.rest;
+
+import br.com.fiap.cheffy.model.TbAddressDTO;
+import br.com.fiap.cheffy.service.TbAddressService;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
+import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+
+@RestController
+@RequestMapping(value = "/api/tbAddresses", produces = MediaType.APPLICATION_JSON_VALUE)
+public class TbAddressResource {
+
+    private final TbAddressService tbAddressService;
+
+    public TbAddressResource(final TbAddressService tbAddressService) {
+        this.tbAddressService = tbAddressService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<TbAddressDTO>> getAllTbAddresses() {
+        return ResponseEntity.ok(tbAddressService.findAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TbAddressDTO> getTbAddress(@PathVariable(name = "id") final Long id) {
+        return ResponseEntity.ok(tbAddressService.get(id));
+    }
+
+    @PostMapping
+    @ApiResponse(responseCode = "201")
+    public ResponseEntity<Long> createTbAddress(
+            @RequestBody @Valid final TbAddressDTO tbAddressDTO) {
+        final Long createdId = tbAddressService.create(tbAddressDTO);
+        return new ResponseEntity<>(createdId, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Long> updateTbAddress(@PathVariable(name = "id") final Long id,
+            @RequestBody @Valid final TbAddressDTO tbAddressDTO) {
+        tbAddressService.update(id, tbAddressDTO);
+        return ResponseEntity.ok(id);
+    }
+
+    @DeleteMapping("/{id}")
+    @ApiResponse(responseCode = "204")
+    public ResponseEntity<Void> deleteTbAddress(@PathVariable(name = "id") final Long id) {
+        tbAddressService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+}
