@@ -1,31 +1,61 @@
-HELP.md
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
-application-local.properties
+############################
+# Java
+############################
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+# Arquivos temporarios
 *.log
-.DS_Store
+*.tmp
+*.swp
+*.swo
 
-## IntelliJ IDEA
-.idea
-*.iws
+# Diretorios de build
+target/
+build/
+out/
+
+############################
+# Maven
+############################
+.mvn/
+!/.mvn/wrapper/maven-wrapper.jar
+
+############################
+# Gradle
+############################
+.gradle/
+**/build/
+gradle-app.setting
+
+############################
+# IntelliJ
+############################
+.idea/
 *.iml
-*.ipr
+*.iws
 
-## VS Code
+############################
+# VS Code
+############################
 .vscode/
 
-## STS
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+############################
+# Sistema operacional
+############################
+.DS_Store
+Thumbs.db
 
-## NetBeans
+
+############################
+# NetBeans
+############################
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -34,3 +64,14 @@ application-local.properties
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
+
+############################
+# STS
+############################
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
