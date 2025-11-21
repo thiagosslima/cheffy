@@ -2,6 +2,7 @@ package br.com.fiap.cheffy.service;
 
 import br.com.fiap.cheffy.domain.TbProfile;
 import br.com.fiap.cheffy.events.BeforeDeleteTbProfile;
+import br.com.fiap.cheffy.mapper.ProfileMapper;
 import br.com.fiap.cheffy.model.TbProfileDTO;
 import br.com.fiap.cheffy.repos.TbProfileRepository;
 import br.com.fiap.cheffy.util.NotFoundException;
@@ -18,36 +19,36 @@ public class TbProfileService {
 
     private final TbProfileRepository tbProfileRepository;
     private final ApplicationEventPublisher publisher;
-
+    private final ProfileMapper mapper;
     public TbProfileService(final TbProfileRepository tbProfileRepository,
-            final ApplicationEventPublisher publisher) {
+            final ApplicationEventPublisher publisher, final ProfileMapper mapper) {
         this.tbProfileRepository = tbProfileRepository;
         this.publisher = publisher;
+        this.mapper = mapper;
     }
 
     public List<TbProfileDTO> findAll() {
         final List<TbProfile> tbProfiles = tbProfileRepository.findAll(Sort.by("id"));
         return tbProfiles.stream()
-                .map(tbProfile -> mapToDTO(tbProfile, new TbProfileDTO()))
+                .map(mapper::mapToDTO)
                 .toList();
     }
 
     public TbProfileDTO get(final Long id) {
         return tbProfileRepository.findById(id)
-                .map(tbProfile -> mapToDTO(tbProfile, new TbProfileDTO()))
+                .map(mapper::mapToDTO)
                 .orElseThrow(NotFoundException::new);
     }
 
     public Long create(final TbProfileDTO tbProfileDTO) {
-        final TbProfile tbProfile = new TbProfile();
-        mapToEntity(tbProfileDTO, tbProfile);
-        return tbProfileRepository.save(tbProfile).getId();
+        TbProfile entity = mapper.mapToEntity(tbProfileDTO);
+        return tbProfileRepository.save(entity).getId();
     }
 
     public void update(final Long id, final TbProfileDTO tbProfileDTO) {
         final TbProfile tbProfile = tbProfileRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
-        mapToEntity(tbProfileDTO, tbProfile);
+        mapper.mapToEntity(tbProfileDTO);
         tbProfileRepository.save(tbProfile);
     }
 
@@ -56,17 +57,6 @@ public class TbProfileService {
                 .orElseThrow(NotFoundException::new);
         publisher.publishEvent(new BeforeDeleteTbProfile(id));
         tbProfileRepository.delete(tbProfile);
-    }
-
-    private TbProfileDTO mapToDTO(final TbProfile tbProfile, final TbProfileDTO tbProfileDTO) {
-        tbProfileDTO.setId(tbProfile.getId());
-        tbProfileDTO.setType(tbProfile.getType());
-        return tbProfileDTO;
-    }
-
-    private TbProfile mapToEntity(final TbProfileDTO tbProfileDTO, final TbProfile tbProfile) {
-        tbProfile.setType(tbProfileDTO.getType());
-        return tbProfile;
     }
 
 }

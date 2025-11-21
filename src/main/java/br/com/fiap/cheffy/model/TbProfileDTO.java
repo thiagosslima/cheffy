@@ -10,8 +10,6 @@ import lombok.Setter;
 @Setter
 public class TbProfileDTO {
 
-    private Long id;
-
     @NotNull
     @Size(max = 255)
     private String type;
