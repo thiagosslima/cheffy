@@ -23,6 +23,8 @@ public class TbAddressService {
     private final TbAddressRepository tbAddressRepository;
     private final TbUserRepository tbUserRepository;
 
+    private final String randomString;
+
     public TbAddressService(final TbAddressRepository tbAddressRepository,
             final TbUserRepository tbUserRepository) {
         this.tbAddressRepository = tbAddressRepository;
