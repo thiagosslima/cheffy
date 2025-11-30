@@ -3,6 +3,8 @@ package br.com.fiap.cheffy.model;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
+
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,5 +33,4 @@ public class TbUserDTO {
     private String password;
 
     private List<Long> profiles;
-
 }

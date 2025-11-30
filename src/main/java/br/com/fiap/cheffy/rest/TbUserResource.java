@@ -38,6 +38,11 @@ public class TbUserResource {
         return ResponseEntity.ok(tbUserService.get(id));
     }
 
+    @GetMapping("/{name}")
+    public ResponseEntity<TbUserDTO> getTbUser(@PathVariable(name = "name") final String name) {
+        return ResponseEntity.ok(tbUserService.get(name));
+    }
+
     @PostMapping
     @ApiResponse(responseCode = "201")
     public ResponseEntity<Long> createTbUser(@RequestBody @Valid final TbUserDTO tbUserDTO) {

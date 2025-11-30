@@ -46,6 +46,14 @@ public class TbUserService {
                 .orElseThrow(NotFoundException::new);
     }
 
+    public TbUserDTO get(final String name) {
+        return tbUserRepository.findByName(name)
+                .map(tbUser -> mapToDTO(tbUser, new TbUserDTO()))
+                .orElseThrow(NotFoundException::new);
+    }
+
+
+
     public Long create(final TbUserDTO tbUserDTO) {
         final TbUser tbUser = new TbUser();
         mapToEntity(tbUserDTO, tbUser);
