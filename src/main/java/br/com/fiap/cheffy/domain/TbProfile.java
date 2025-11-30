@@ -35,7 +35,7 @@ public class TbProfile {
     )
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String type;
 
     @CreatedDate

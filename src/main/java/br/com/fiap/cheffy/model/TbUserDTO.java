@@ -1,8 +1,11 @@
 package br.com.fiap.cheffy.model;
 
+import br.com.fiap.cheffy.domain.ProfileType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.util.List;
+
+import java.util.UUID;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +14,7 @@ import lombok.Setter;
 @Setter
 public class TbUserDTO {
 
-    private Long id;
+    private UUID id;
 
     @NotNull
     @Size(max = 255)
@@ -30,6 +33,6 @@ public class TbUserDTO {
     @Size(max = 255)
     private String password;
 
-    private List<Long> profiles;
+    private ProfileType profileType;
 
 }
