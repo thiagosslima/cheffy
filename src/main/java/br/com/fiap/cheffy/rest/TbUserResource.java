@@ -1,6 +1,7 @@
 package br.com.fiap.cheffy.rest;
 
-import br.com.fiap.cheffy.model.TbUserDTO;
+import br.com.fiap.cheffy.model.TbUserCreateDTO;
+import br.com.fiap.cheffy.model.TbUserResponseDTO;
 import br.com.fiap.cheffy.service.TbUserService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
@@ -31,25 +32,25 @@ public class TbUserResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<TbUserDTO>> getAllTbUsers() {
+    public ResponseEntity<List<TbUserResponseDTO>> getAllTbUsers() {
         return ResponseEntity.ok(tbUserService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TbUserDTO> getTbUser(@PathVariable(name = "id") final String id) {
+    public ResponseEntity<TbUserResponseDTO> getTbUser(@PathVariable(name = "id") final String id) {
         return ResponseEntity.ok(tbUserService.get(UUID.fromString(id)));
     }
 
     @PostMapping
     @ApiResponse(responseCode = "201")
-    public ResponseEntity<String> createTbUser(@RequestBody @Valid final TbUserDTO tbUserDTO) {
+    public ResponseEntity<String> createTbUser(@RequestBody @Valid final TbUserCreateDTO tbUserDTO) {
         final String createdId = tbUserService.create(tbUserDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateTbUser(@PathVariable(name = "id") final String id,
-            @RequestBody @Valid final TbUserDTO tbUserDTO) {
+            @RequestBody @Valid final TbUserCreateDTO tbUserDTO) {
         tbUserService.update(UUID.fromString(id), tbUserDTO);
         return ResponseEntity.ok(id);
     }
