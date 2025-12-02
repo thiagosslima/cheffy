@@ -5,7 +5,8 @@ import br.com.fiap.cheffy.domain.TbUser;
 import br.com.fiap.cheffy.events.BeforeDeleteTbProfile;
 import br.com.fiap.cheffy.events.BeforeDeleteTbUser;
 import br.com.fiap.cheffy.mapper.UserMapper;
-import br.com.fiap.cheffy.model.TbUserDTO;
+import br.com.fiap.cheffy.model.TbUserCreateDTO;
+import br.com.fiap.cheffy.model.TbUserResponseDTO;
 import br.com.fiap.cheffy.repos.TbProfileRepository;
 import br.com.fiap.cheffy.repos.TbUserRepository;
 import br.com.fiap.cheffy.util.NotFoundException;
@@ -42,32 +43,39 @@ public class TbUserService {
         this.userMapper = userMapper;
     }
 
-    public List<TbUserDTO> findAll() {
+    public List<TbUserResponseDTO> findAll() {
         final List<TbUser> tbUsers = tbUserRepository.findAll(Sort.by("id"));
         return tbUsers.stream()
                 .map(userMapper::mapToDTO)
                 .toList();
     }
 
-    public TbUserDTO get(final UUID id) {
+    public TbUserResponseDTO get(final UUID id) {
         return tbUserRepository.findById(id)
                 .map(userMapper::mapToDTO)
                 .orElseThrow(NotFoundException::new);
     }
 
-    public String create(final TbUserDTO tbUserDTO) {
+    public String create(final TbUserCreateDTO tbUserDTO) {
         final TbUser tbUser = userMapper.mapToEntity(tbUserDTO);
-        if (tbUserDTO.getProfileType() != null) {
-            final TbProfile profile = tbProfileRepository.findByType(tbUserDTO.getProfileType().name())
+        if (tbUserDTO.profileType() != null) {
+            final TbProfile profile = tbProfileRepository.findByType(tbUserDTO.profileType().name())
                     .orElseThrow(() -> new NotFoundException("Profile not found"));
             tbUser.setProfiles(Set.of(profile));
         }
         return tbUserRepository.save(tbUser).getId().toString();
     }
 
-    public void update(final UUID id, final TbUserDTO tbUserDTO) {
+    public void update(final UUID id, final TbUserCreateDTO tbUserDTO) {
         final TbUser tbUser = tbUserRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
+
+        userMapper.updateUserFromDto(tbUserDTO, tbUser);
+        if (tbUserDTO.profileType() != null) {
+            final TbProfile profile = tbProfileRepository.findByType(tbUserDTO.profileType().name())
+                    .orElseThrow(() -> new NotFoundException("Profile not found"));
+            tbUser.setProfiles(Set.of(profile));
+        }
 
         tbUserRepository.save(tbUser);
     }
