@@ -11,6 +11,13 @@ import br.com.fiap.cheffy.model.TbUserCreateDTO;
 import br.com.fiap.cheffy.model.TbUserResponseDTO;
 import br.com.fiap.cheffy.repos.TbProfileRepository;
 import br.com.fiap.cheffy.repos.TbUserRepository;
+import br.com.fiap.cheffy.util.NotFoundException;
+
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import java.util.Set;
+import java.util.UUID;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Sort;
@@ -22,6 +29,7 @@ import java.util.Set;
 import java.util.UUID;
 
 
+@Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TbUserService {
@@ -101,16 +109,28 @@ public class TbUserService {
         tbUserRepository.save(tbUser);
     }
 
-    public void delete(final UUID id) {
-        final TbUser tbUser = tbUserRepository.findById(id)
+    public void deleteUser(final UUID id) {
+        log.info("TbUserService.deleteUser - START - Starting user deletion process for user: [{}]", id);
+        
+        final TbUser user = tbUserRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         ExceptionsKeys.USER_NOT_FOUND_EXCEPTION.toString(),
                         USER_ENTITY_NAME,
                         id.toString()));
-        publisher.publishEvent(new BeforeDeleteTbUser(id));
-        tbUserRepository.delete(tbUser);
-    }
+        
+        log.info("TbUserService.deleteUser - CONTINUE - User found. Starting cleanup process. - userName: [{}], userEmail: [{}]", user.getName(), user.getEmail());
 
+        publisher.publishEvent(new BeforeDeleteTbUser(id));
+
+        log.info("TbUserService.deleteUser - CONTINUE - Clearing {} profile associations for user id: [{}]", user.getProfiles().size(), id);
+        user.getProfiles().clear();
+        tbUserRepository.save(user);
+
+        log.info("TbUserService.deleteUser - CONTINUE - Deleting user with id: [{}]", id);
+        tbUserRepository.delete(user);
+        
+        log.info("TbUserService.deleteUser - END - Deletion completed successfully for user: [{}]", id);
+    }
 
     public boolean emailExists(final String email) {
         return tbUserRepository.existsByEmailIgnoreCase(email);
