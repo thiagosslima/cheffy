@@ -8,7 +8,7 @@ import br.com.fiap.cheffy.exceptions.NotFoundException;
 import br.com.fiap.cheffy.model.TbAddressDTO;
 import br.com.fiap.cheffy.repos.TbAddressRepository;
 import br.com.fiap.cheffy.repos.TbUserRepository;
-import br.com.fiap.cheffy.util.ReferencedException;
+
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
@@ -106,14 +106,10 @@ public class TbAddressService {
     }
 
     @EventListener(BeforeDeleteTbUser.class)
-    public void on(final BeforeDeleteTbUser event) {
-        final ReferencedException referencedException = new ReferencedException();
-        final TbAddress userTbAddress = tbAddressRepository.findFirstByUserId(event.getId());
-        if (userTbAddress != null) {
-            referencedException.setKey("tbUser.tbAddress.user.referenced");
-            referencedException.addParam(userTbAddress.getId());
-            throw referencedException;
-        }
+    public void onBeforeDeleteTbUser(final BeforeDeleteTbUser event) {
+        log.info("TbAddressService.onBeforeDeleteTbUser - START - Deleting all addresses for user: [{}]", event.getId());
+        tbAddressRepository.deleteAllByUserId(event.getId());
+        log.info("TbAddressService.onBeforeDeleteTbUser - END - Deleted all address related to user: [{}]", event.getId());
     }
 
 }

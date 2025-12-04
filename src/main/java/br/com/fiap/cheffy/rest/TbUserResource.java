@@ -18,6 +18,7 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
+@Slf4j
 @RequestMapping(value = "/api/tbUsers", produces = MediaType.APPLICATION_JSON_VALUE)
 public class TbUserResource {
 
@@ -63,8 +64,10 @@ public class TbUserResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    public ResponseEntity<Void> deleteTbUser(@PathVariable(name = "id") final String id) {
-        tbUserService.delete(UUID.fromString(id));
+    public ResponseEntity<Void> deleteUser(@PathVariable(name = "id") final String id) {
+        log.info("TbUserResource.deleteUser - START - Delete user: [{}]", id);
+        tbUserService.deleteUser(UUID.fromString(id));
+        log.info("TbUserResource.deleteUser - END - User deleted: [{}]", id);
         return ResponseEntity.noContent().build();
     }
 
