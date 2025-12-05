@@ -4,12 +4,17 @@ import br.com.fiap.cheffy.domain.TbProfile;
 import br.com.fiap.cheffy.domain.TbUser;
 import br.com.fiap.cheffy.events.BeforeDeleteTbProfile;
 import br.com.fiap.cheffy.events.BeforeDeleteTbUser;
-import br.com.fiap.cheffy.model.TbUserDTO;
+import br.com.fiap.cheffy.mapper.UserMapper;
+import br.com.fiap.cheffy.model.TbUserCreateDTO;
+import br.com.fiap.cheffy.model.TbUserResponseDTO;
 import br.com.fiap.cheffy.repos.TbProfileRepository;
 import br.com.fiap.cheffy.repos.TbUserRepository;
 import br.com.fiap.cheffy.util.NotFoundException;
-import java.util.HashSet;
+
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Sort;
@@ -24,28 +29,41 @@ public class TbUserService {
     private final TbUserRepository tbUserRepository;
     private final TbProfileRepository tbProfileRepository;
     private final ApplicationEventPublisher publisher;
+    private final UserMapper userMapper;
 
-    public TbUserService(final TbUserRepository tbUserRepository,
+    public TbUserService(
+            final TbUserRepository tbUserRepository,
             final TbProfileRepository tbProfileRepository,
-            final ApplicationEventPublisher publisher) {
+            final ApplicationEventPublisher publisher,
+            final UserMapper userMapper) {
+
         this.tbUserRepository = tbUserRepository;
         this.tbProfileRepository = tbProfileRepository;
         this.publisher = publisher;
+        this.userMapper = userMapper;
     }
 
-    public List<TbUserDTO> findAll() {
+    public List<TbUserResponseDTO> findAll() {
         final List<TbUser> tbUsers = tbUserRepository.findAll(Sort.by("id"));
         return tbUsers.stream()
-                .map(tbUser -> mapToDTO(tbUser, new TbUserDTO()))
+                .map(userMapper::mapToDTO)
                 .toList();
     }
 
-    public TbUserDTO get(final Long id) {
+    public TbUserResponseDTO get(final UUID id) {
         return tbUserRepository.findById(id)
-                .map(tbUser -> mapToDTO(tbUser, new TbUserDTO()))
+                .map(userMapper::mapToDTO)
                 .orElseThrow(NotFoundException::new);
     }
 
+    public String create(final TbUserCreateDTO tbUserDTO) {
+        final TbUser tbUser = userMapper.mapToEntity(tbUserDTO);
+        if (tbUserDTO.profileType() != null) {
+            final TbProfile profile = tbProfileRepository.findByType(tbUserDTO.profileType().name())
+                    .orElseThrow(() -> new NotFoundException("Profile not found"));
+            tbUser.setProfiles(Set.of(profile));
+        }
+        return tbUserRepository.save(tbUser).getId().toString();
     public TbUserDTO get(final String name) {
         return tbUserRepository.findByName(name)
                 .map(tbUser -> mapToDTO(tbUser, new TbUserDTO()))
@@ -60,45 +78,27 @@ public class TbUserService {
         return tbUserRepository.save(tbUser).getId();
     }
 
-    public void update(final Long id, final TbUserDTO tbUserDTO) {
+    public void update(final UUID id, final TbUserCreateDTO tbUserDTO) {
         final TbUser tbUser = tbUserRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
-        mapToEntity(tbUserDTO, tbUser);
+
+        userMapper.updateUserFromDto(tbUserDTO, tbUser);
+        if (tbUserDTO.profileType() != null) {
+            final TbProfile profile = tbProfileRepository.findByType(tbUserDTO.profileType().name())
+                    .orElseThrow(() -> new NotFoundException("Profile not found"));
+            tbUser.setProfiles(Set.of(profile));
+        }
+
         tbUserRepository.save(tbUser);
     }
 
-    public void delete(final Long id) {
+    public void delete(final UUID id) {
         final TbUser tbUser = tbUserRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
         publisher.publishEvent(new BeforeDeleteTbUser(id));
         tbUserRepository.delete(tbUser);
     }
 
-    private TbUserDTO mapToDTO(final TbUser tbUser, final TbUserDTO tbUserDTO) {
-        tbUserDTO.setId(tbUser.getId());
-        tbUserDTO.setName(tbUser.getName());
-        tbUserDTO.setEmail(tbUser.getEmail());
-        tbUserDTO.setLogin(tbUser.getLogin());
-        tbUserDTO.setPassword(tbUser.getPassword());
-        tbUserDTO.setProfiles(tbUser.getProfiles().stream()
-                .map(tbProfile -> tbProfile.getId())
-                .toList());
-        return tbUserDTO;
-    }
-
-    private TbUser mapToEntity(final TbUserDTO tbUserDTO, final TbUser tbUser) {
-        tbUser.setName(tbUserDTO.getName());
-        tbUser.setEmail(tbUserDTO.getEmail());
-        tbUser.setLogin(tbUserDTO.getLogin());
-        tbUser.setPassword(tbUserDTO.getPassword());
-        final List<TbProfile> profiles = tbProfileRepository.findAllById(
-                tbUserDTO.getProfiles() == null ? List.of() : tbUserDTO.getProfiles());
-        if (profiles.size() != (tbUserDTO.getProfiles() == null ? 0 : tbUserDTO.getProfiles().size())) {
-            throw new NotFoundException("one of profiles not found");
-        }
-        tbUser.setProfiles(new HashSet<>(profiles));
-        return tbUser;
-    }
 
     public boolean emailExists(final String email) {
         return tbUserRepository.existsByEmailIgnoreCase(email);

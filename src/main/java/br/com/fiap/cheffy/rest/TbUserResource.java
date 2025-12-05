@@ -5,6 +5,9 @@ import br.com.fiap.cheffy.service.TbUserService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import org.slf4j.MDC;
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,13 +28,13 @@ public class TbUserResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<TbUserDTO>> getAllTbUsers() {
+    public ResponseEntity<List<TbUserResponseDTO>> getAllTbUsers() {
         return ResponseEntity.ok(tbUserService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TbUserDTO> getTbUser(@PathVariable(name = "id") final Long id) {
-        return ResponseEntity.ok(tbUserService.get(id));
+    public ResponseEntity<TbUserResponseDTO> getTbUser(@PathVariable(name = "id") final String id) {
+        return ResponseEntity.ok(tbUserService.get(UUID.fromString(id)));
     }
 
     @GetMapping("/{name}")
@@ -44,22 +47,22 @@ public class TbUserResource {
 
     @PostMapping
     @ApiResponse(responseCode = "201")
-    public ResponseEntity<Long> createTbUser(@RequestBody @Valid final TbUserDTO tbUserDTO) {
-        final Long createdId = tbUserService.create(tbUserDTO);
+    public ResponseEntity<String> createTbUser(@RequestBody @Valid final TbUserCreateDTO tbUserDTO) {
+        final String createdId = tbUserService.create(tbUserDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Long> updateTbUser(@PathVariable(name = "id") final Long id,
-                                             @RequestBody @Valid final TbUserDTO tbUserDTO) {
-        tbUserService.update(id, tbUserDTO);
+    public ResponseEntity<String> updateTbUser(@PathVariable(name = "id") final String id,
+            @RequestBody @Valid final TbUserCreateDTO tbUserDTO) {
+        tbUserService.update(UUID.fromString(id), tbUserDTO);
         return ResponseEntity.ok(id);
     }
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    public ResponseEntity<Void> deleteTbUser(@PathVariable(name = "id") final Long id) {
-        tbUserService.delete(id);
+    public ResponseEntity<Void> deleteTbUser(@PathVariable(name = "id") final String id) {
+        tbUserService.delete(UUID.fromString(id));
         return ResponseEntity.noContent().build();
     }
 
