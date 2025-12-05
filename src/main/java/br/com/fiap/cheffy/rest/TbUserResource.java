@@ -1,6 +1,7 @@
 package br.com.fiap.cheffy.rest;
 
 import br.com.fiap.cheffy.model.TbUserDTO;
+import br.com.fiap.cheffy.model.TbUserUpdateDTO;
 import br.com.fiap.cheffy.service.TbUserService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
@@ -47,8 +48,8 @@ public class TbUserResource {
 
     @PutMapping("/{id}")
     public ResponseEntity<Long> updateTbUser(@PathVariable(name = "id") final Long id,
-            @RequestBody @Valid final TbUserDTO tbUserDTO) {
-        tbUserService.update(id, tbUserDTO);
+                                             @RequestBody @Valid final TbUserUpdateDTO userUpdateDTO) {
+        tbUserService.update(id, userUpdateDTO);
         return ResponseEntity.ok(id);
     }
 

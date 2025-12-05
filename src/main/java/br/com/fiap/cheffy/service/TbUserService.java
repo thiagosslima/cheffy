@@ -4,12 +4,16 @@ import br.com.fiap.cheffy.domain.TbProfile;
 import br.com.fiap.cheffy.domain.TbUser;
 import br.com.fiap.cheffy.events.BeforeDeleteTbProfile;
 import br.com.fiap.cheffy.events.BeforeDeleteTbUser;
+import br.com.fiap.cheffy.mapper.TbUserUpdateMapper;
 import br.com.fiap.cheffy.model.TbUserDTO;
+import br.com.fiap.cheffy.model.TbUserUpdateDTO;
 import br.com.fiap.cheffy.repos.TbProfileRepository;
 import br.com.fiap.cheffy.repos.TbUserRepository;
 import br.com.fiap.cheffy.util.NotFoundException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Sort;
@@ -24,13 +28,15 @@ public class TbUserService {
     private final TbUserRepository tbUserRepository;
     private final TbProfileRepository tbProfileRepository;
     private final ApplicationEventPublisher publisher;
+    private final TbUserUpdateMapper userUpdateMapper;
 
     public TbUserService(final TbUserRepository tbUserRepository,
-            final TbProfileRepository tbProfileRepository,
-            final ApplicationEventPublisher publisher) {
+                         final TbProfileRepository tbProfileRepository,
+                         final ApplicationEventPublisher publisher, TbUserUpdateMapper userUpdateMapper) {
         this.tbUserRepository = tbUserRepository;
         this.tbProfileRepository = tbProfileRepository;
         this.publisher = publisher;
+        this.userUpdateMapper = userUpdateMapper;
     }
 
     public List<TbUserDTO> findAll() {
@@ -52,10 +58,13 @@ public class TbUserService {
         return tbUserRepository.save(tbUser).getId();
     }
 
-    public void update(final Long id, final TbUserDTO tbUserDTO) {
+    public void update(final Long id, final TbUserUpdateDTO userUpdateDTO) {
+        if(existsUserWithEmail(userUpdateDTO.email(), id)){
+            throw new RuntimeException("A user with the e-mail already exists");
+        }
         final TbUser tbUser = tbUserRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
-        mapToEntity(tbUserDTO, tbUser);
+        userUpdateMapper.updateEntityFromDto(userUpdateDTO, tbUser);
         tbUserRepository.save(tbUser);
     }
 
@@ -94,6 +103,12 @@ public class TbUserService {
 
     public boolean emailExists(final String email) {
         return tbUserRepository.existsByEmailIgnoreCase(email);
+    }
+
+    private boolean existsUserWithEmail(String email, Long idToExclude) {
+       return tbUserRepository.findByEmail(email)
+                .filter(tbUser -> !Objects.equals(tbUser.getId(), idToExclude))
+               .isPresent();
     }
 
     @EventListener(BeforeDeleteTbProfile.class)
