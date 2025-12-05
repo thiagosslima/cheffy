@@ -10,8 +10,8 @@ public record TbUserUpdateDTO(
         @NotBlank(message = "Name cannot be empty")
         String name,
 
-        @Email(message = "e-mail cannot be empty")
-        @NotBlank(message = "e-mail is not valid")
+        @Email(message = "e-mail is not valid")
+        @NotBlank(message = "e-mail cannot be empty")
         String email
 ) {
 }
