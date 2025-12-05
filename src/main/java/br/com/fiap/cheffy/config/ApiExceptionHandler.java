@@ -1,19 +1,23 @@
 package br.com.fiap.cheffy.config;
 import br.com.fiap.cheffy.exceptions.ApiInternalServerErrorException;
+import br.com.fiap.cheffy.exceptions.DeserializationException;
 import br.com.fiap.cheffy.exceptions.model.Problem;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Locale;
 
 @ControllerAdvice
@@ -27,6 +31,39 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     private static final String GENERIC_ERROR_MESSAGE = "GENERIC_ERROR_MESSAGE";
+    private static final String ARGUMENT_NOT_VALID_ERROR = "ARGUMENT_NOT_VALID_ERROR";
+    private static final String ERROR_ON_DESERIALIZATION = "ERROR_ON_DESERIALIZATION";
+
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+                                                                  HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+
+        String userMessage = getMessage(ARGUMENT_NOT_VALID_ERROR);
+        String detail = getMessage(ERROR_ON_DESERIALIZATION);
+
+        List<Problem.Field> problemFields = ex.getBindingResult().getFieldErrors().stream()
+                .map(fieldErrors -> {
+                    String message = messageSource.getMessage(fieldErrors, LocaleContextHolder.getLocale());
+
+                    return Problem.Field.builder()
+                            .name(fieldErrors.getField())
+                            .userMessage(message)
+                            .build();
+                }).toList();
+
+        HttpStatus exceptionStatus = HttpStatus.BAD_REQUEST;
+
+
+        Problem problem = createProblemBuilder(
+                exceptionStatus,
+                DeserializationException.class.getSimpleName(),
+                detail)
+                .userMessage(userMessage)
+                .fields(problemFields)
+                .build();
+
+        return handleExceptionInternal(ex, problem, headers, exceptionStatus, request);
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleUncaught(Exception ex, WebRequest request) {
