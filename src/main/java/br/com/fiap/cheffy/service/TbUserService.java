@@ -10,16 +10,15 @@ import br.com.fiap.cheffy.model.TbUserResponseDTO;
 import br.com.fiap.cheffy.repos.TbProfileRepository;
 import br.com.fiap.cheffy.repos.TbUserRepository;
 import br.com.fiap.cheffy.util.NotFoundException;
-
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 
 @Service
@@ -64,18 +63,12 @@ public class TbUserService {
             tbUser.setProfiles(Set.of(profile));
         }
         return tbUserRepository.save(tbUser).getId().toString();
-    public TbUserDTO get(final String name) {
-        return tbUserRepository.findByName(name)
-                .map(tbUser -> mapToDTO(tbUser, new TbUserDTO()))
-                .orElseThrow(NotFoundException::new);
     }
 
-
-
-    public Long create(final TbUserDTO tbUserDTO) {
-        final TbUser tbUser = new TbUser();
-        mapToEntity(tbUserDTO, tbUser);
-        return tbUserRepository.save(tbUser).getId();
+    public TbUserResponseDTO get(final String name) {
+        return tbUserRepository.findByName(name)
+                .map(userMapper::mapToDTO)
+                .orElseThrow(NotFoundException::new);
     }
 
     public void update(final UUID id, final TbUserCreateDTO tbUserDTO) {
@@ -98,7 +91,6 @@ public class TbUserService {
         publisher.publishEvent(new BeforeDeleteTbUser(id));
         tbUserRepository.delete(tbUser);
     }
-
 
     public boolean emailExists(final String email) {
         return tbUserRepository.existsByEmailIgnoreCase(email);

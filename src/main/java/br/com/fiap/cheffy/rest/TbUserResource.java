@@ -1,13 +1,12 @@
 package br.com.fiap.cheffy.rest;
 
-import br.com.fiap.cheffy.model.TbUserDTO;
+import br.com.fiap.cheffy.model.TbUserCreateDTO;
+import br.com.fiap.cheffy.model.TbUserResponseDTO;
 import br.com.fiap.cheffy.service.TbUserService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-import java.util.List;
-import java.util.UUID;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/api/tbUsers", produces = MediaType.APPLICATION_JSON_VALUE)
 public class TbUserResource {
@@ -37,10 +37,12 @@ public class TbUserResource {
         return ResponseEntity.ok(tbUserService.get(UUID.fromString(id)));
     }
 
-    @GetMapping("/{name}")
-    public ResponseEntity<TbUserDTO> getTbUser(@PathVariable(name = "name") final String name) {
+    @GetMapping("/name/{name}")
+    public ResponseEntity<TbUserResponseDTO> getTbUserByName(@PathVariable(name = "name") final String name) {
         addLogTradeId();
+        log.info("TbUserResource.getTbUserByName - START - Find user by name [{}]", name);
         var response = ResponseEntity.ok(tbUserService.get(name));
+        log.info("TbUserResource.getTbUserByName - END - Users found [{}]", name);
         MDC.clear();
         return response;
     }
