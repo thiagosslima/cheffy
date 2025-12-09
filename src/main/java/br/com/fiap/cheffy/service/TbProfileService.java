@@ -1,11 +1,12 @@
 package br.com.fiap.cheffy.service;
 
+import br.com.fiap.cheffy.domain.ExceptionsKeys;
 import br.com.fiap.cheffy.domain.TbProfile;
 import br.com.fiap.cheffy.events.BeforeDeleteTbProfile;
+import br.com.fiap.cheffy.exceptions.NotFoundException;
 import br.com.fiap.cheffy.mapper.ProfileMapper;
 import br.com.fiap.cheffy.model.TbProfileDTO;
 import br.com.fiap.cheffy.repos.TbProfileRepository;
-import br.com.fiap.cheffy.util.NotFoundException;
 import java.util.List;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Sort;
@@ -20,6 +21,8 @@ public class TbProfileService {
     private final TbProfileRepository tbProfileRepository;
     private final ApplicationEventPublisher publisher;
     private final ProfileMapper mapper;
+    private static final String ENTITY_NAME = "Profile";
+
     public TbProfileService(final TbProfileRepository tbProfileRepository,
             final ApplicationEventPublisher publisher, final ProfileMapper mapper) {
         this.tbProfileRepository = tbProfileRepository;
@@ -37,7 +40,11 @@ public class TbProfileService {
     public TbProfileDTO get(final Long id) {
         return tbProfileRepository.findById(id)
                 .map(mapper::mapToDTO)
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow( () -> new NotFoundException(
+                        ExceptionsKeys.PROFILE_NOT_FOUND_EXCEPTION.toString(),
+                        ENTITY_NAME,
+                        id.toString()
+                ));
     }
 
     public Long create(final TbProfileDTO tbProfileDTO) {
@@ -47,14 +54,20 @@ public class TbProfileService {
 
     public void update(final Long id, final TbProfileDTO tbProfileDTO) {
         final TbProfile tbProfile = tbProfileRepository.findById(id)
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(() -> new NotFoundException(
+                        ExceptionsKeys.PROFILE_NOT_FOUND_EXCEPTION.toString(),
+                        ENTITY_NAME,
+                        id.toString()));
         mapper.mapToEntity(tbProfileDTO);
         tbProfileRepository.save(tbProfile);
     }
 
     public void delete(final Long id) {
         final TbProfile tbProfile = tbProfileRepository.findById(id)
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(() -> new NotFoundException(
+                        ExceptionsKeys.PROFILE_NOT_FOUND_EXCEPTION.toString(),
+                        ENTITY_NAME,
+                        id.toString()));
         publisher.publishEvent(new BeforeDeleteTbProfile(id));
         tbProfileRepository.delete(tbProfile);
     }
