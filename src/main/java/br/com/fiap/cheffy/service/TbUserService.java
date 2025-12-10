@@ -11,16 +11,15 @@ import br.com.fiap.cheffy.model.TbUserCreateDTO;
 import br.com.fiap.cheffy.model.TbUserResponseDTO;
 import br.com.fiap.cheffy.repos.TbProfileRepository;
 import br.com.fiap.cheffy.repos.TbUserRepository;
-
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 
 @Service
@@ -74,6 +73,12 @@ public class TbUserService {
             tbUser.setProfiles(Set.of(profile));
         }
         return tbUserRepository.save(tbUser).getId().toString();
+    }
+
+    public TbUserResponseDTO get(final String name) {
+        return tbUserRepository.findByName(name)
+                .map(userMapper::mapToDTO)
+                .orElseThrow();
     }
 
     public void update(final UUID id, final TbUserCreateDTO tbUserDTO) {
