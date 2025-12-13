@@ -1,0 +1,24 @@
+package br.com.fiap.cheffy.domain;
+
+public enum ExceptionsKeys {
+
+
+    //General Error Messages
+    GENERIC_RESOURCE_NOT_FOUND,
+    PROPERTY_BINDING_ERROR,
+    INVALID_FORMAT_ERROR,
+    ERROR_ON_DESERIALIZATION,
+    GENERIC_ERROR_MESSAGE,
+    ARGUMENT_NOT_VALID_ERROR,
+
+    //Profile
+    PROFILE_NOT_FOUND_EXCEPTION,
+
+    //Adress
+    ADRESS_NOT_FOUND_EXCEPTION,
+
+    //User
+    USER_NOT_FOUND_EXCEPTION
+
+
+}

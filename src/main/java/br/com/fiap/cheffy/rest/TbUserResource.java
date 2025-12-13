@@ -5,22 +5,18 @@ import br.com.fiap.cheffy.model.TbUserResponseDTO;
 import br.com.fiap.cheffy.service.TbUserService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
-import java.util.List;
-import java.util.UUID;
-
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/api/tbUsers", produces = MediaType.APPLICATION_JSON_VALUE)
 public class TbUserResource {
@@ -39,6 +35,16 @@ public class TbUserResource {
     @GetMapping("/{id}")
     public ResponseEntity<TbUserResponseDTO> getTbUser(@PathVariable(name = "id") final String id) {
         return ResponseEntity.ok(tbUserService.get(UUID.fromString(id)));
+    }
+
+    @GetMapping("/name/{name}")
+    public ResponseEntity<TbUserResponseDTO> getTbUserByName(@PathVariable(name = "name") final String name) {
+        addLogTradeId();
+        log.info("TbUserResource.getTbUserByName - START - Find user by name [{}]", name);
+        var response = ResponseEntity.ok(tbUserService.get(name));
+        log.info("TbUserResource.getTbUserByName - END - Users found [{}]", name);
+        MDC.clear();
+        return response;
     }
 
     @PostMapping
@@ -62,4 +68,7 @@ public class TbUserResource {
         return ResponseEntity.noContent().build();
     }
 
+    private static void addLogTradeId() {
+        MDC.put("traceId", UUID.randomUUID().toString());
+    }
 }
