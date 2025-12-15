@@ -30,7 +30,7 @@ public class TbUserResponseDTO {
     @Size(max = 255)
     private String login;
 
-    @NotBlank
+    @NotNull
     private ProfileType profileType;
 
 }
