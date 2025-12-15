@@ -9,6 +9,8 @@ import br.com.fiap.cheffy.exceptions.NotFoundException;
 import br.com.fiap.cheffy.mapper.UserMapper;
 import br.com.fiap.cheffy.model.TbUserCreateDTO;
 import br.com.fiap.cheffy.model.TbUserResponseDTO;
+import br.com.fiap.cheffy.model.TbUserUpdateDTO;
+import br.com.fiap.cheffy.model.TbUserUpdatePasswordDTO;
 import br.com.fiap.cheffy.repos.TbProfileRepository;
 import br.com.fiap.cheffy.repos.TbUserRepository;
 import br.com.fiap.cheffy.util.NotFoundException;
@@ -89,14 +91,9 @@ public class TbUserService {
                 .orElseThrow();
     }
 
-    public void update(final UUID id, final TbUserCreateDTO tbUserDTO) {
-        final TbUser tbUser = tbUserRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(
-                        ExceptionsKeys.USER_NOT_FOUND_EXCEPTION.toString(),
-                        USER_ENTITY_NAME,
-                        id.toString()));
-
-        userMapper.updateUserFromDto(tbUserDTO, tbUser);
+    public void update(final UUID id, final TbUserUpdateDTO tbUserDTO) {
+        final TbUser tbUser = findById(id);
+        userMapper.updateUserFromDtoWithoutPassword(tbUserDTO, tbUser);
         if (tbUserDTO.profileType() != null) {
             final TbProfile profile = tbProfileRepository.findByType(tbUserDTO.profileType().name())
                     .orElseThrow(() -> new NotFoundException(
@@ -111,13 +108,13 @@ public class TbUserService {
 
     public void deleteUser(final UUID id) {
         log.info("TbUserService.deleteUser - START - Starting user deletion process for user: [{}]", id);
-        
+
         final TbUser user = tbUserRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         ExceptionsKeys.USER_NOT_FOUND_EXCEPTION.toString(),
                         USER_ENTITY_NAME,
                         id.toString()));
-        
+
         log.info("TbUserService.deleteUser - CONTINUE - User found. Starting cleanup process. - userName: [{}], userEmail: [{}]", user.getName(), user.getEmail());
 
         publisher.publishEvent(new BeforeDeleteTbUser(id));
@@ -128,7 +125,7 @@ public class TbUserService {
 
         log.info("TbUserService.deleteUser - CONTINUE - Deleting user with id: [{}]", id);
         tbUserRepository.delete(user);
-        
+
         log.info("TbUserService.deleteUser - END - Deletion completed successfully for user: [{}]", id);
     }
 
@@ -141,6 +138,14 @@ public class TbUserService {
         // remove many-to-many relations at owning side
         tbUserRepository.findAllByProfilesId(event.getId()).forEach(tbUser ->
                 tbUser.getProfiles().removeIf(tbProfile -> tbProfile.getId().equals(event.getId())));
+    }
+
+    private TbUser findById(final UUID id){
+        return tbUserRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(
+                        ExceptionsKeys.USER_NOT_FOUND_EXCEPTION.toString(),
+                        USER_ENTITY_NAME,
+                        id.toString()));
     }
 
 }
