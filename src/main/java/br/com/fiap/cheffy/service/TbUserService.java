@@ -9,6 +9,8 @@ import br.com.fiap.cheffy.exceptions.NotFoundException;
 import br.com.fiap.cheffy.mapper.UserMapper;
 import br.com.fiap.cheffy.model.TbUserCreateDTO;
 import br.com.fiap.cheffy.model.TbUserResponseDTO;
+import br.com.fiap.cheffy.model.TbUserUpdateDTO;
+import br.com.fiap.cheffy.model.TbUserUpdatePasswordDTO;
 import br.com.fiap.cheffy.repos.TbProfileRepository;
 import br.com.fiap.cheffy.repos.TbUserRepository;
 import org.springframework.context.ApplicationEventPublisher;
@@ -81,14 +83,9 @@ public class TbUserService {
                 .orElseThrow();
     }
 
-    public void update(final UUID id, final TbUserCreateDTO tbUserDTO) {
-        final TbUser tbUser = tbUserRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(
-                        ExceptionsKeys.USER_NOT_FOUND_EXCEPTION.toString(),
-                        USER_ENTITY_NAME,
-                        id.toString()));
-
-        userMapper.updateUserFromDto(tbUserDTO, tbUser);
+    public void update(final UUID id, final TbUserUpdateDTO tbUserDTO) {
+        final TbUser tbUser = findById(id);
+        userMapper.updateUserFromDtoWithoutPassword(tbUserDTO, tbUser);
         if (tbUserDTO.profileType() != null) {
             final TbProfile profile = tbProfileRepository.findByType(tbUserDTO.profileType().name())
                     .orElseThrow(() -> new NotFoundException(
@@ -102,15 +99,16 @@ public class TbUserService {
     }
 
     public void delete(final UUID id) {
-        final TbUser tbUser = tbUserRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(
-                        ExceptionsKeys.USER_NOT_FOUND_EXCEPTION.toString(),
-                        USER_ENTITY_NAME,
-                        id.toString()));
+        final TbUser tbUser = findById(id);
         publisher.publishEvent(new BeforeDeleteTbUser(id));
         tbUserRepository.delete(tbUser);
     }
 
+    public void updatePassword(final UUID id, final TbUserUpdatePasswordDTO tbUserUpdatePasswordDTO) {
+        final TbUser tbUser = findById(id);
+        userMapper.updateUserFromDtoOnlyPassword(tbUserUpdatePasswordDTO, tbUser);
+        tbUserRepository.save(tbUser);
+    }
 
     public boolean emailExists(final String email) {
         return tbUserRepository.existsByEmailIgnoreCase(email);
@@ -121,6 +119,14 @@ public class TbUserService {
         // remove many-to-many relations at owning side
         tbUserRepository.findAllByProfilesId(event.getId()).forEach(tbUser ->
                 tbUser.getProfiles().removeIf(tbProfile -> tbProfile.getId().equals(event.getId())));
+    }
+
+    private TbUser findById(final UUID id){
+        return tbUserRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(
+                        ExceptionsKeys.USER_NOT_FOUND_EXCEPTION.toString(),
+                        USER_ENTITY_NAME,
+                        id.toString()));
     }
 
 }

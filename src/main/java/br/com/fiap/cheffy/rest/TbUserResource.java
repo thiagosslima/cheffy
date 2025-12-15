@@ -2,6 +2,8 @@ package br.com.fiap.cheffy.rest;
 
 import br.com.fiap.cheffy.model.TbUserCreateDTO;
 import br.com.fiap.cheffy.model.TbUserResponseDTO;
+import br.com.fiap.cheffy.model.TbUserUpdateDTO;
+import br.com.fiap.cheffy.model.TbUserUpdatePasswordDTO;
 import br.com.fiap.cheffy.service.TbUserService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
@@ -56,8 +58,15 @@ public class TbUserResource {
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateTbUser(@PathVariable(name = "id") final String id,
-            @RequestBody @Valid final TbUserCreateDTO tbUserDTO) {
+            @RequestBody @Valid final TbUserUpdateDTO tbUserDTO) {
         tbUserService.update(UUID.fromString(id), tbUserDTO);
+        return ResponseEntity.ok(id);
+    }
+
+    @PutMapping("/{id}/password")
+    public ResponseEntity<String> updatePassword(@PathVariable(name = "id") final String id,
+                                               @RequestBody @Valid final TbUserUpdatePasswordDTO tbUserUpdatePasswordDTO) {
+        tbUserService.updatePassword(UUID.fromString(id), tbUserUpdatePasswordDTO);
         return ResponseEntity.ok(id);
     }
 
