@@ -56,7 +56,7 @@ public class TbUserResource {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Long> updateTbUser(@PathVariable(name = "id") final Long id,
+    public ResponseEntity<UUID> updateTbUser(@PathVariable(name = "id") final UUID id,
                                              @RequestBody @Valid final TbUserUpdateDTO userUpdateDTO) {
         tbUserService.update(id, userUpdateDTO);
         return ResponseEntity.ok(id);
