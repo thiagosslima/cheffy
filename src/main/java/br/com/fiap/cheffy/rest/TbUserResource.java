@@ -1,24 +1,23 @@
 package br.com.fiap.cheffy.rest;
 
-import br.com.fiap.cheffy.model.TbUserDTO;
+import br.com.fiap.cheffy.model.TbUserCreateDTO;
+import br.com.fiap.cheffy.model.TbUserResponseDTO;
 import br.com.fiap.cheffy.model.TbUserUpdateDTO;
 import br.com.fiap.cheffy.service.TbUserService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
-import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/api/tbUsers", produces = MediaType.APPLICATION_JSON_VALUE)
 public class TbUserResource {
@@ -30,19 +29,29 @@ public class TbUserResource {
     }
 
     @GetMapping
-    public ResponseEntity<List<TbUserDTO>> getAllTbUsers() {
+    public ResponseEntity<List<TbUserResponseDTO>> getAllTbUsers() {
         return ResponseEntity.ok(tbUserService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TbUserDTO> getTbUser(@PathVariable(name = "id") final Long id) {
-        return ResponseEntity.ok(tbUserService.get(id));
+    public ResponseEntity<TbUserResponseDTO> getTbUser(@PathVariable(name = "id") final String id) {
+        return ResponseEntity.ok(tbUserService.get(UUID.fromString(id)));
+    }
+
+    @GetMapping("/name/{name}")
+    public ResponseEntity<TbUserResponseDTO> getTbUserByName(@PathVariable(name = "name") final String name) {
+        addLogTradeId();
+        log.info("TbUserResource.getTbUserByName - START - Find user by name [{}]", name);
+        var response = ResponseEntity.ok(tbUserService.get(name));
+        log.info("TbUserResource.getTbUserByName - END - Users found [{}]", name);
+        MDC.clear();
+        return response;
     }
 
     @PostMapping
     @ApiResponse(responseCode = "201")
-    public ResponseEntity<Long> createTbUser(@RequestBody @Valid final TbUserDTO tbUserDTO) {
-        final Long createdId = tbUserService.create(tbUserDTO);
+    public ResponseEntity<String> createTbUser(@RequestBody @Valid final TbUserCreateDTO tbUserDTO) {
+        final String createdId = tbUserService.create(tbUserDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
@@ -55,9 +64,12 @@ public class TbUserResource {
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    public ResponseEntity<Void> deleteTbUser(@PathVariable(name = "id") final Long id) {
-        tbUserService.delete(id);
+    public ResponseEntity<Void> deleteTbUser(@PathVariable(name = "id") final String id) {
+        tbUserService.delete(UUID.fromString(id));
         return ResponseEntity.noContent().build();
     }
 
+    private static void addLogTradeId() {
+        MDC.put("traceId", UUID.randomUUID().toString());
+    }
 }

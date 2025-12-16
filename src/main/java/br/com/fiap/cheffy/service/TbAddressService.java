@@ -1,12 +1,13 @@
 package br.com.fiap.cheffy.service;
 
+import br.com.fiap.cheffy.domain.ExceptionsKeys;
 import br.com.fiap.cheffy.domain.TbAddress;
 import br.com.fiap.cheffy.domain.TbUser;
 import br.com.fiap.cheffy.events.BeforeDeleteTbUser;
+import br.com.fiap.cheffy.exceptions.NotFoundException;
 import br.com.fiap.cheffy.model.TbAddressDTO;
 import br.com.fiap.cheffy.repos.TbAddressRepository;
 import br.com.fiap.cheffy.repos.TbUserRepository;
-import br.com.fiap.cheffy.util.NotFoundException;
 import br.com.fiap.cheffy.util.ReferencedException;
 import java.util.List;
 
@@ -22,6 +23,8 @@ public class TbAddressService {
 
     private final TbAddressRepository tbAddressRepository;
     private final TbUserRepository tbUserRepository;
+
+    private static final String ENTITY_NAME = "Address";
 
     public TbAddressService(final TbAddressRepository tbAddressRepository,
             final TbUserRepository tbUserRepository) {
@@ -39,7 +42,10 @@ public class TbAddressService {
     public TbAddressDTO get(final Long id) {
         return tbAddressRepository.findById(id)
                 .map(tbAddress -> mapToDTO(tbAddress, new TbAddressDTO()))
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(() -> new NotFoundException(
+                        ExceptionsKeys.ADRESS_NOT_FOUND_EXCEPTION.toString(),
+                        ENTITY_NAME,
+                        id.toString()));
     }
 
     public Long create(final TbAddressDTO tbAddressDTO) {
@@ -50,14 +56,20 @@ public class TbAddressService {
 
     public void update(final Long id, final TbAddressDTO tbAddressDTO) {
         final TbAddress tbAddress = tbAddressRepository.findById(id)
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(() -> new NotFoundException(
+                        ExceptionsKeys.ADRESS_NOT_FOUND_EXCEPTION.toString(),
+                        ENTITY_NAME,
+                        id.toString()));
         mapToEntity(tbAddressDTO, tbAddress);
         tbAddressRepository.save(tbAddress);
     }
 
     public void delete(final Long id) {
         final TbAddress tbAddress = tbAddressRepository.findById(id)
-                .orElseThrow(NotFoundException::new);
+                .orElseThrow(() -> new NotFoundException(
+                        ExceptionsKeys.ADRESS_NOT_FOUND_EXCEPTION.toString(),
+                        ENTITY_NAME,
+                        id.toString()));
         tbAddressRepository.delete(tbAddress);
     }
 
@@ -85,7 +97,10 @@ public class TbAddressService {
         tbAddress.setAddressLine(tbAddressDTO.getAddressLine());
         tbAddress.setMain(tbAddressDTO.getMain());
         final TbUser user = tbAddressDTO.getUser() == null ? null : tbUserRepository.findById(tbAddressDTO.getUser())
-                .orElseThrow(() -> new NotFoundException("user not found"));
+                .orElseThrow(() -> new NotFoundException(
+                        ExceptionsKeys.ADRESS_NOT_FOUND_EXCEPTION.toString(),
+                        ENTITY_NAME,
+                        tbAddressDTO.getUser().toString()));
         tbAddress.setUser(user);
         return tbAddress;
     }

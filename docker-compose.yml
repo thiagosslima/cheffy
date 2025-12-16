@@ -4,6 +4,38 @@ services:
     environment:
     - POSTGRES_DB=cheffy
     - POSTGRES_USER=postgres
-    - POSTGRES_PASSWORD=P4ssword!
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
-    - 5433:5432
+      - "${DB_PORT}:5432"
+    networks:
+      - cheffy-network
+
+    env_file:
+      - .env
+
+  cheffy-app:
+    # Constrói a imagem a partir do Dockerfile no diretório atual
+    build:
+      context: .
+      args:
+        # Passa o valor para o Dockerfile. O nome do host é 'postgres' (o nome do serviço)
+        DB_HOST_ARG: $DB_HOST
+        POSTGRES_PASSWORD_ARG: $POSTGRES_PASSWORD
+        DB_PORT_ARG: $DB_PORT
+    ports:
+      - "8080:8080"
+    networks:
+      - cheffy-network
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    environment:
+      DB_HOST: postgres
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      DB_PORT: "${DB_PORT}"
+
+# Define as redes customizadas para os serviços
+networks:
+  cheffy-network:
+    driver: bridge

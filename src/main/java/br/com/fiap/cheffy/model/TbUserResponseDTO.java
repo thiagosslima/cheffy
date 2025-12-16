@@ -1,35 +1,36 @@
 package br.com.fiap.cheffy.model;
 
+import br.com.fiap.cheffy.domain.ProfileType;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.UUID;
 
 
 @Getter
 @Setter
-public class TbUserDTO {
+public class TbUserResponseDTO {
 
-    private Long id;
+    private UUID id;
 
-    @NotNull
+    @NotBlank
     @Size(max = 255)
     private String name;
 
-    @NotNull
+    @NotBlank
     @Size(max = 255)
     @TbUserEmailUnique
     private String email;
 
-    @NotNull
+    @NotBlank
     @Size(max = 255)
     private String login;
 
-    @NotNull
-    @Size(max = 255)
-    private String password;
-
-    private List<Long> profiles;
+    @NotBlank
+    private ProfileType profileType;
 
 }
