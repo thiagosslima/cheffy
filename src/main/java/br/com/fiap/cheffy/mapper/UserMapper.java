@@ -20,17 +20,8 @@ public interface UserMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "profiles", ignore = true)
-    @Mapping(target = "password", ignore = true)
     void updateUserFromDtoWithoutPassword(TbUserUpdateDTO tbUserDTO, @MappingTarget TbUser tbUser);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "name", ignore = true)
-    @Mapping(target = "email", ignore = true)
-    @Mapping(target = "login", ignore = true)
-    @Mapping(target = "profiles", ignore = true)
-    @Mapping(target = "addresses", ignore = true)
-    @Mapping(target = "dateCreated", ignore = true)
-    @Mapping(target = "lastUpdated", ignore = true)
     void updateUserFromDtoOnlyPassword(TbUserUpdatePasswordDTO tbUserUpdatePasswordDTO, @MappingTarget TbUser tbUser);
 
 }

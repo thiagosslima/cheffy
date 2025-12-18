@@ -57,16 +57,16 @@ public class TbUserResource {
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<String> updateTbUser(@PathVariable(name = "id") final String id,
             @RequestBody @Valid final TbUserUpdateDTO tbUserDTO) {
         tbUserService.update(UUID.fromString(id), tbUserDTO);
         return ResponseEntity.ok(id);
     }
 
-    @PutMapping("/{id}/password")
+    @PatchMapping("/{id}/password")
     public ResponseEntity<String> updatePassword(@PathVariable(name = "id") final String id,
-                                               @RequestBody @Valid final TbUserUpdatePasswordDTO tbUserUpdatePasswordDTO) {
+                                                 @RequestBody @Valid final TbUserUpdatePasswordDTO tbUserUpdatePasswordDTO) {
         tbUserService.updatePassword(UUID.fromString(id), tbUserUpdatePasswordDTO);
         return ResponseEntity.ok(id);
     }
