@@ -6,12 +6,12 @@ import br.com.fiap.cheffy.domain.TbUser;
 import br.com.fiap.cheffy.events.BeforeDeleteTbProfile;
 import br.com.fiap.cheffy.events.BeforeDeleteTbUser;
 import br.com.fiap.cheffy.exceptions.NotFoundException;
+import br.com.fiap.cheffy.exceptions.RegisterFailedException;
 import br.com.fiap.cheffy.mapper.UserMapper;
 import br.com.fiap.cheffy.model.TbUserCreateDTO;
 import br.com.fiap.cheffy.model.TbUserResponseDTO;
 import br.com.fiap.cheffy.repos.TbProfileRepository;
 import br.com.fiap.cheffy.repos.TbUserRepository;
-import br.com.fiap.cheffy.util.NotFoundException;
 
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -72,6 +72,9 @@ public class TbUserService {
 
     public String create(final TbUserCreateDTO tbUserDTO) {
         final TbUser tbUser = userMapper.mapToEntity(tbUserDTO);
+
+        throwExceptionCaseLoginAlreadyExists(tbUser.getLogin());
+
         if (tbUserDTO.profileType() != null) {
             final TbProfile profile = tbProfileRepository.findByType(tbUserDTO.profileType().name())
                     .orElseThrow(() -> new NotFoundException(
@@ -81,6 +84,12 @@ public class TbUserService {
             tbUser.setProfiles(Set.of(profile));
         }
         return tbUserRepository.save(tbUser).getId().toString();
+    }
+
+    private void throwExceptionCaseLoginAlreadyExists(String login) {
+        if(tbUserRepository.existsByLogin(login)) {
+            throw new RegisterFailedException(ExceptionsKeys.REGISTER_FAILED_EXCEPTION.toString());
+        }
     }
 
     public TbUserResponseDTO get(final String name) {

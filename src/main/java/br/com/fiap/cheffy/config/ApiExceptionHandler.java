@@ -4,6 +4,7 @@ import br.com.fiap.cheffy.domain.ExceptionsKeys.*;
 import br.com.fiap.cheffy.exceptions.ApiInternalServerErrorException;
 import br.com.fiap.cheffy.exceptions.DeserializationException;
 import br.com.fiap.cheffy.exceptions.NotFoundException;
+import br.com.fiap.cheffy.exceptions.RegisterFailedException;
 import br.com.fiap.cheffy.exceptions.model.Problem;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -45,6 +46,26 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String INVALID_FORMAT_ERROR = ExceptionsKeys.INVALID_FORMAT_ERROR.toString();
     private static final String PROPERTY_BINDING_ERROR = ExceptionsKeys.PROPERTY_BINDING_ERROR.toString();
     private static final String GENERIC_RESOURCE_NOT_FOUND = ExceptionsKeys.GENERIC_RESOURCE_NOT_FOUND.toString();
+
+
+    @ExceptionHandler(RegisterFailedException.class)
+    private ResponseEntity<Object> handleRegisterFailedException(RegisterFailedException ex, WebRequest request) {
+
+        String title = ex.getClass().getSimpleName();
+        String message = getMessage(ex.getMessage()) ;
+
+        HttpStatus httpStatusCode = HttpStatus.NOT_FOUND;
+
+        Problem problem = createProblemBuilder(
+                httpStatusCode,
+                title,
+                message)
+                .userMessage(message)
+                .build();
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), httpStatusCode, request);
+
+    }
 
     @ExceptionHandler(NotFoundException.class)
     private ResponseEntity<Object> handleNotFoundException(NotFoundException ex, WebRequest request) {
