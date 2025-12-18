@@ -79,14 +79,14 @@ public class TbUserService {
 
     public void update(final UUID id, final TbUserUpdateDTO tbUserDTO) {
         final TbUser tbUser = findById(id);
-        userMapper.updateUserFromDtoWithoutPassword(tbUserDTO, tbUser);
+        userMapper.updateUserFromDto(tbUserDTO, tbUser);
         extractedProfiles(tbUserDTO.profileType(), tbUser);
         tbUserRepository.save(tbUser);
     }
 
-    private void extractedProfiles(ProfileType tbUserDTO, TbUser tbUser) {
-        if (tbUserDTO != null) {
-            final TbProfile profile = tbProfileRepository.findByType(tbUserDTO.name())
+    private void extractedProfiles(ProfileType profileType, TbUser tbUser) {
+        if (profileType != null) {
+            final TbProfile profile = tbProfileRepository.findByType(profileType.name())
                     .orElseThrow(() -> new NotFoundException(
                             ExceptionsKeys.PROFILE_NOT_FOUND_EXCEPTION.toString(),
                             PROFILE_ENTITY_NAME,
