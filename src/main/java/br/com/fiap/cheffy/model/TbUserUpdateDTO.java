@@ -19,7 +19,6 @@ public record TbUserUpdateDTO(
         @Size(max = 255)
         String login,
 
-        @NotNull
         ProfileType profileType
 ) {
 }
