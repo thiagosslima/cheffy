@@ -1,6 +1,7 @@
 package br.com.fiap.cheffy.service;
 
 import br.com.fiap.cheffy.domain.ExceptionsKeys;
+import br.com.fiap.cheffy.domain.ProfileType;
 import br.com.fiap.cheffy.domain.TbProfile;
 import br.com.fiap.cheffy.domain.TbUser;
 import br.com.fiap.cheffy.events.BeforeDeleteTbProfile;
@@ -66,14 +67,7 @@ public class TbUserService {
 
     public String create(final TbUserCreateDTO tbUserDTO) {
         final TbUser tbUser = userMapper.mapToEntity(tbUserDTO);
-        if (tbUserDTO.profileType() != null) {
-            final TbProfile profile = tbProfileRepository.findByType(tbUserDTO.profileType().name())
-                    .orElseThrow(() -> new NotFoundException(
-                            ExceptionsKeys.PROFILE_NOT_FOUND_EXCEPTION.toString(),
-                            PROFILE_ENTITY_NAME,
-                            null));
-            tbUser.setProfiles(Set.of(profile));
-        }
+        extractedProfiles(tbUserDTO.profileType(), tbUser);
         return tbUserRepository.save(tbUser).getId().toString();
     }
 
@@ -86,16 +80,19 @@ public class TbUserService {
     public void update(final UUID id, final TbUserUpdateDTO tbUserDTO) {
         final TbUser tbUser = findById(id);
         userMapper.updateUserFromDtoWithoutPassword(tbUserDTO, tbUser);
-        if (tbUserDTO.profileType() != null) {
-            final TbProfile profile = tbProfileRepository.findByType(tbUserDTO.profileType().name())
+        extractedProfiles(tbUserDTO.profileType(), tbUser);
+        tbUserRepository.save(tbUser);
+    }
+
+    private void extractedProfiles(ProfileType tbUserDTO, TbUser tbUser) {
+        if (tbUserDTO != null) {
+            final TbProfile profile = tbProfileRepository.findByType(tbUserDTO.name())
                     .orElseThrow(() -> new NotFoundException(
                             ExceptionsKeys.PROFILE_NOT_FOUND_EXCEPTION.toString(),
                             PROFILE_ENTITY_NAME,
                             null));
             tbUser.setProfiles(Set.of(profile));
         }
-
-        tbUserRepository.save(tbUser);
     }
 
     public void delete(final UUID id) {
