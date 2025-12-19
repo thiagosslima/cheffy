@@ -20,7 +20,6 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@Slf4j
 @RequestMapping(value = "/api/tbUsers", produces = MediaType.APPLICATION_JSON_VALUE)
 public class TbUserResource {
 
@@ -32,12 +31,22 @@ public class TbUserResource {
 
     @GetMapping
     public ResponseEntity<List<TbUserResponseDTO>> getAllTbUsers() {
-        return ResponseEntity.ok(tbUserService.findAll());
+        addLogTradeId();
+        log.info("TbUserResource.getAllTbUsers - START - Find all users");
+        var response = ResponseEntity.ok(tbUserService.findAll());
+        log.info("TbUserResource.getAllTbUsers - END - Users found");
+        MDC.clear();
+        return response;
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<TbUserResponseDTO> getTbUser(@PathVariable(name = "id") final String id) {
-        return ResponseEntity.ok(tbUserService.get(UUID.fromString(id)));
+        addLogTradeId();
+        log.info("TbUserResource.getTbUser - START - Find user by id [{}]", id);
+        var response = ResponseEntity.ok(tbUserService.get(UUID.fromString(id)));
+        log.info("TbUserResource.getTbUser - END - User found [{}]", id);
+        MDC.clear();
+        return response;
     }
 
     @GetMapping("/name/{name}")
@@ -53,27 +62,41 @@ public class TbUserResource {
     @PostMapping
     @ApiResponse(responseCode = "201")
     public ResponseEntity<String> createTbUser(@RequestBody @Valid final TbUserCreateDTO tbUserDTO) {
-        final String createdId = tbUserService.create(tbUserDTO);
+        addLogTradeId();
+        log.info("TbUserResource.createTbUser - START - Create user");
+        var createdId = tbUserService.create(tbUserDTO);
+        log.info("TbUserResource.createTbUser - END - User created with id [{}]", createdId);
+        MDC.clear();
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<String> updateTbUser(@PathVariable(name = "id") final String id,
-            @RequestBody @Valid final TbUserUpdateDTO tbUserDTO) {
+                                               @RequestBody @Valid final TbUserUpdateDTO tbUserDTO) {
+        addLogTradeId();
+        log.info("TbUserResource.updateTbUser - START - Update user");
         tbUserService.update(UUID.fromString(id), tbUserDTO);
+        log.info("TbUserResource.updateTbUser - END - User updated [{}]", id);
+        MDC.clear();
         return ResponseEntity.ok(id);
     }
 
     @PatchMapping("/{id}/password")
     public ResponseEntity<String> updatePassword(@PathVariable(name = "id") final String id,
                                                  @RequestBody @Valid final TbUserUpdatePasswordDTO tbUserUpdatePasswordDTO) {
+        addLogTradeId();
+        log.info("TbUserResource.updatePassword - START - Update password for user [{}]", id);
         tbUserService.updatePassword(UUID.fromString(id), tbUserUpdatePasswordDTO);
-        return ResponseEntity.ok(id);
+        var response = ResponseEntity.ok(id);
+        log.info("TbUserResource.updatePassword - END - Password updated for user [{}]", id);
+        MDC.clear();
+        return response;
     }
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> deleteUser(@PathVariable(name = "id") final String id) {
+        addLogTradeId();
         log.info("TbUserResource.deleteUser - START - Delete user: [{}]", id);
         tbUserService.deleteUser(UUID.fromString(id));
         log.info("TbUserResource.deleteUser - END - User deleted: [{}]", id);
@@ -84,3 +107,4 @@ public class TbUserResource {
         MDC.put("traceId", UUID.randomUUID().toString());
     }
 }
+

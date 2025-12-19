@@ -14,13 +14,7 @@ import br.com.fiap.cheffy.model.TbUserUpdateDTO;
 import br.com.fiap.cheffy.model.TbUserUpdatePasswordDTO;
 import br.com.fiap.cheffy.repos.TbProfileRepository;
 import br.com.fiap.cheffy.repos.TbUserRepository;
-import br.com.fiap.cheffy.util.NotFoundException;
-
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import java.util.Set;
-import java.util.UUID;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Sort;
@@ -58,41 +52,59 @@ public class TbUserService {
     }
 
     public List<TbUserResponseDTO> findAll() {
+        log.info("TbUserService.findAll - START");
         final List<TbUser> tbUsers = tbUserRepository.findAll(Sort.by("id"));
-        return tbUsers.stream()
+        var response = tbUsers.stream()
                 .map(userMapper::mapToDTO)
                 .toList();
+        log.info("TbUserService.findAll - END - Retrieved {} users", response.size());
+        return response;
     }
 
     public TbUserResponseDTO get(final UUID id) {
-        return tbUserRepository.findById(id)
+        log.info("TbUserService.get - START");
+        var response = tbUserRepository.findById(id)
                 .map(userMapper::mapToDTO)
                 .orElseThrow(() -> new NotFoundException(
                         ExceptionsKeys.USER_NOT_FOUND_EXCEPTION.toString(),
                         USER_ENTITY_NAME,
                         id.toString()));
+        log.info("TbUserService.get - END - Retrieved user: [{}]", id);
+        return response;
     }
 
     public String create(final TbUserCreateDTO tbUserDTO) {
+        log.info("TbUserService.create - START");
         final TbUser tbUser = userMapper.mapToEntity(tbUserDTO);
         extractedProfiles(tbUserDTO.profileType(), tbUser);
-        return tbUserRepository.save(tbUser).getId().toString();
+        log.info("TbUserService.create - CONTINUE - Creating user: [{}]", tbUser);
+        var response = tbUserRepository.save(tbUser).getId().toString();
+        log.info("TbUserService.create - END - Created user: [{}]", response);
+        return response;
     }
 
     public TbUserResponseDTO get(final String name) {
-        return tbUserRepository.findByName(name)
+        log.info("TbUserService.get - START");
+        var response = tbUserRepository.findByName(name)
                 .map(userMapper::mapToDTO)
                 .orElseThrow();
+        log.info("TbUserService.get - END - Retrieved user: [{}]", name);
+        return response;
     }
 
     public void update(final UUID id, final TbUserUpdateDTO tbUserDTO) {
+        log.info("TbUserService.update - START - Updating user: [{}]", id);
         final TbUser tbUser = findById(id);
+        log.info("TbUserService.update - CONTINUE - Found user: [{}]", id);
         userMapper.updateUserFromDto(tbUserDTO, tbUser);
         extractedProfiles(tbUserDTO.profileType(), tbUser);
+        log.info("TbUserService.update - CONTINUE - Updated user: [{}]", id);
         tbUserRepository.save(tbUser);
+        log.info("TbUserService.update - END - Updated user: [{}]", id);
     }
 
     private void extractedProfiles(ProfileType profileType, TbUser tbUser) {
+        log.info("TbUserService.extractedProfiles - START");
         if (profileType != null) {
             final TbProfile profile = tbProfileRepository.findByType(profileType.name())
                     .orElseThrow(() -> new NotFoundException(
@@ -101,6 +113,7 @@ public class TbUserService {
                             null));
             tbUser.setProfiles(Set.of(profile));
         }
+        log.info("TbUserService.extractedProfiles - END");
     }
 
     public void deleteUser(final UUID id) {
@@ -126,7 +139,16 @@ public class TbUserService {
         log.info("TbUserService.deleteUser - END - Deletion completed successfully for user: [{}]", id);
     }
 
+    public void updatePassword(final UUID id, final TbUserUpdatePasswordDTO tbUserUpdatePasswordDTO) {
+        log.info("TbUserService.updatePassword - START - Starting password update process for user: [{}]", id);
+        final TbUser tbUser = findById(id);
+        userMapper.updateUserFromDtoOnlyPassword(tbUserUpdatePasswordDTO, tbUser);
+        tbUserRepository.save(tbUser);
+        log.info("TbUserService.updatePassword - END - Password updated successfully for user: [{}]", id);
+    }
+
     public boolean emailExists(final String email) {
+        log.info("TbUserService.emailExists - START - Checking if email exists: [{}]", email);
         return tbUserRepository.existsByEmailIgnoreCase(email);
     }
 
