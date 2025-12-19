@@ -50,9 +50,9 @@ public class TbUser {
 
     @ManyToMany
     @JoinTable(
-            name = "TbUserProfile",
-            joinColumns = @JoinColumn(name = "tbUserId"),
-            inverseJoinColumns = @JoinColumn(name = "tbProfileId")
+            name = "tb_user_profile",
+            joinColumns = @JoinColumn(name = "tb_user_id"),
+            inverseJoinColumns = @JoinColumn(name = "tb_profile_id")
     )
     private Set<TbProfile> profiles = new HashSet<>();
 
