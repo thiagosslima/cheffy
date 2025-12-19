@@ -1,6 +1,5 @@
 package br.com.fiap.cheffy.service;
 
-import br.com.fiap.cheffy.domain.ExceptionsKeys;
 import br.com.fiap.cheffy.domain.TbProfile;
 import br.com.fiap.cheffy.domain.TbUser;
 import br.com.fiap.cheffy.events.BeforeDeleteTbProfile;
@@ -21,12 +20,11 @@ import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import static br.com.fiap.cheffy.domain.ExceptionsKeys.*;
 
 
 @Slf4j
@@ -38,6 +36,7 @@ public class TbUserService {
     private final TbProfileRepository tbProfileRepository;
     private final ApplicationEventPublisher publisher;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     private static final String USER_ENTITY_NAME = "User";
     private static final String PROFILE_ENTITY_NAME = "Profile";
@@ -46,12 +45,14 @@ public class TbUserService {
             final TbUserRepository tbUserRepository,
             final TbProfileRepository tbProfileRepository,
             final ApplicationEventPublisher publisher,
-            final UserMapper userMapper) {
+            final UserMapper userMapper,
+            final PasswordEncoder passwordEncoder) {
 
         this.tbUserRepository = tbUserRepository;
         this.tbProfileRepository = tbProfileRepository;
         this.publisher = publisher;
         this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<TbUserResponseDTO> findAll() {
@@ -65,7 +66,7 @@ public class TbUserService {
         return tbUserRepository.findById(id)
                 .map(userMapper::mapToDTO)
                 .orElseThrow(() -> new NotFoundException(
-                        ExceptionsKeys.USER_NOT_FOUND_EXCEPTION.toString(),
+                        USER_NOT_FOUND_EXCEPTION,
                         USER_ENTITY_NAME,
                         id.toString()));
     }
@@ -75,10 +76,12 @@ public class TbUserService {
 
         throwExceptionCaseLoginAlreadyExists(tbUser.getLogin());
 
+        tbUser.setPassword(passwordEncoder.encode(tbUserDTO.password()));
+
         if (tbUserDTO.profileType() != null) {
             final TbProfile profile = tbProfileRepository.findByType(tbUserDTO.profileType().name())
                     .orElseThrow(() -> new NotFoundException(
-                            ExceptionsKeys.PROFILE_NOT_FOUND_EXCEPTION.toString(),
+                            PROFILE_NOT_FOUND_EXCEPTION,
                             PROFILE_ENTITY_NAME,
                             null));
             tbUser.setProfiles(Set.of(profile));
@@ -88,7 +91,7 @@ public class TbUserService {
 
     private void throwExceptionCaseLoginAlreadyExists(String login) {
         if(tbUserRepository.existsByLogin(login)) {
-            throw new RegisterFailedException(ExceptionsKeys.REGISTER_FAILED_EXCEPTION.toString());
+            throw new RegisterFailedException(REGISTER_FAILED_EXCEPTION);
         }
     }
 
@@ -101,7 +104,7 @@ public class TbUserService {
     public void update(final UUID id, final TbUserCreateDTO tbUserDTO) {
         final TbUser tbUser = tbUserRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
-                        ExceptionsKeys.USER_NOT_FOUND_EXCEPTION.toString(),
+                        USER_NOT_FOUND_EXCEPTION,
                         USER_ENTITY_NAME,
                         id.toString()));
 
@@ -109,7 +112,7 @@ public class TbUserService {
         if (tbUserDTO.profileType() != null) {
             final TbProfile profile = tbProfileRepository.findByType(tbUserDTO.profileType().name())
                     .orElseThrow(() -> new NotFoundException(
-                            ExceptionsKeys.PROFILE_NOT_FOUND_EXCEPTION.toString(),
+                            PROFILE_NOT_FOUND_EXCEPTION,
                             PROFILE_ENTITY_NAME,
                             null));
             tbUser.setProfiles(Set.of(profile));
@@ -123,7 +126,7 @@ public class TbUserService {
         
         final TbUser user = tbUserRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
-                        ExceptionsKeys.USER_NOT_FOUND_EXCEPTION.toString(),
+                        USER_NOT_FOUND_EXCEPTION,
                         USER_ENTITY_NAME,
                         id.toString()));
         

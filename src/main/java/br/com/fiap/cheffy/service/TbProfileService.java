@@ -1,6 +1,5 @@
 package br.com.fiap.cheffy.service;
 
-import br.com.fiap.cheffy.domain.ExceptionsKeys;
 import br.com.fiap.cheffy.domain.TbProfile;
 import br.com.fiap.cheffy.events.BeforeDeleteTbProfile;
 import br.com.fiap.cheffy.exceptions.NotFoundException;
@@ -12,6 +11,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static br.com.fiap.cheffy.domain.ExceptionsKeys.PROFILE_NOT_FOUND_EXCEPTION;
 
 
 @Service
@@ -41,7 +42,7 @@ public class TbProfileService {
         return tbProfileRepository.findById(id)
                 .map(mapper::mapToDTO)
                 .orElseThrow( () -> new NotFoundException(
-                        ExceptionsKeys.PROFILE_NOT_FOUND_EXCEPTION.toString(),
+                        PROFILE_NOT_FOUND_EXCEPTION,
                         ENTITY_NAME,
                         id.toString()
                 ));
@@ -55,7 +56,7 @@ public class TbProfileService {
     public void update(final Long id, final TbProfileDTO tbProfileDTO) {
         final TbProfile tbProfile = tbProfileRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
-                        ExceptionsKeys.PROFILE_NOT_FOUND_EXCEPTION.toString(),
+                        PROFILE_NOT_FOUND_EXCEPTION,
                         ENTITY_NAME,
                         id.toString()));
         mapper.mapToEntity(tbProfileDTO);
@@ -65,7 +66,7 @@ public class TbProfileService {
     public void delete(final Long id) {
         final TbProfile tbProfile = tbProfileRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
-                        ExceptionsKeys.PROFILE_NOT_FOUND_EXCEPTION.toString(),
+                        PROFILE_NOT_FOUND_EXCEPTION,
                         ENTITY_NAME,
                         id.toString()));
         publisher.publishEvent(new BeforeDeleteTbProfile(id));

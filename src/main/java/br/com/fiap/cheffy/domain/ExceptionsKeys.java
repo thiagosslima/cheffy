@@ -19,7 +19,10 @@ public enum ExceptionsKeys {
 
     //User
     USER_NOT_FOUND_EXCEPTION,
-    REGISTER_FAILED_EXCEPTION
+    REGISTER_FAILED_EXCEPTION,
+
+    //Login
+    LOGIN_FAILED_EXCEPTION
 
 
 }

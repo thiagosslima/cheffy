@@ -18,7 +18,6 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@Slf4j
 @RequestMapping(value = "/api/tbUsers", produces = MediaType.APPLICATION_JSON_VALUE)
 public class TbUserResource {
 

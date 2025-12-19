@@ -16,6 +16,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import static br.com.fiap.cheffy.domain.ExceptionsKeys.ADRESS_NOT_FOUND_EXCEPTION;
+
 
 @Slf4j
 @Service
@@ -43,7 +45,7 @@ public class TbAddressService {
         return tbAddressRepository.findById(id)
                 .map(tbAddress -> mapToDTO(tbAddress, new TbAddressDTO()))
                 .orElseThrow(() -> new NotFoundException(
-                        ExceptionsKeys.ADRESS_NOT_FOUND_EXCEPTION.toString(),
+                        ADRESS_NOT_FOUND_EXCEPTION,
                         ENTITY_NAME,
                         id.toString()));
     }
@@ -57,7 +59,7 @@ public class TbAddressService {
     public void update(final Long id, final TbAddressDTO tbAddressDTO) {
         final TbAddress tbAddress = tbAddressRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
-                        ExceptionsKeys.ADRESS_NOT_FOUND_EXCEPTION.toString(),
+                        ADRESS_NOT_FOUND_EXCEPTION,
                         ENTITY_NAME,
                         id.toString()));
         mapToEntity(tbAddressDTO, tbAddress);
@@ -67,7 +69,7 @@ public class TbAddressService {
     public void delete(final Long id) {
         final TbAddress tbAddress = tbAddressRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
-                        ExceptionsKeys.ADRESS_NOT_FOUND_EXCEPTION.toString(),
+                        ADRESS_NOT_FOUND_EXCEPTION,
                         ENTITY_NAME,
                         id.toString()));
         tbAddressRepository.delete(tbAddress);
@@ -98,7 +100,7 @@ public class TbAddressService {
         tbAddress.setMain(tbAddressDTO.getMain());
         final TbUser user = tbAddressDTO.getUser() == null ? null : tbUserRepository.findById(tbAddressDTO.getUser())
                 .orElseThrow(() -> new NotFoundException(
-                        ExceptionsKeys.ADRESS_NOT_FOUND_EXCEPTION.toString(),
+                        ADRESS_NOT_FOUND_EXCEPTION,
                         ENTITY_NAME,
                         tbAddressDTO.getUser().toString()));
         tbAddress.setUser(user);
