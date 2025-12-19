@@ -19,7 +19,7 @@ public interface TbUserRepository extends JpaRepository<TbUser, UUID> {
 
     Optional<TbUser> findByName(String name);
 
-    boolean existsByLogin(String login);
+    boolean existsByEmailOrLogin(String email,  String login);
 
     @Query("""
             SELECT distinct u FROM TbUser u 

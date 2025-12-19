@@ -74,7 +74,7 @@ public class TbUserService {
     public String create(final TbUserCreateDTO tbUserDTO) {
         final TbUser tbUser = userMapper.mapToEntity(tbUserDTO);
 
-        throwExceptionCaseLoginAlreadyExists(tbUser.getLogin());
+        throwExceptionCaseLoginOrEmailAlreadyExists(tbUser);
 
         tbUser.setPassword(passwordEncoder.encode(tbUserDTO.password()));
 
@@ -89,8 +89,8 @@ public class TbUserService {
         return tbUserRepository.save(tbUser).getId().toString();
     }
 
-    private void throwExceptionCaseLoginAlreadyExists(String login) {
-        if(tbUserRepository.existsByLogin(login)) {
+    private void throwExceptionCaseLoginOrEmailAlreadyExists(TbUser user) {
+        if(tbUserRepository.existsByEmailOrLogin(user.getEmail(), user.getLogin())) {
             throw new RegisterFailedException(REGISTER_FAILED_EXCEPTION);
         }
     }
