@@ -12,7 +12,6 @@ public record TbUserUpdateDTO(
 
         @NotBlank
         @Size(max = 255)
-        @TbUserEmailUnique
         String email,
 
         @NotBlank

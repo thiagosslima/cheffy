@@ -16,6 +16,9 @@ import br.com.fiap.cheffy.repos.TbProfileRepository;
 import br.com.fiap.cheffy.repos.TbUserRepository;
 
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
@@ -57,23 +60,21 @@ public class TbUserService {
 
     public List<TbUserResponseDTO> findAll() {
         log.info("TbUserService.findAll - START");
+
         final List<TbUser> tbUsers = tbUserRepository.findAll(Sort.by("id"));
+
         var response = tbUsers.stream()
                 .map(userMapper::mapToDTO)
                 .toList();
+
         log.info("TbUserService.findAll - END - Retrieved {} users", response.size());
         return response;
     }
 
     public TbUserResponseDTO get(final UUID id) {
-        return tbUserRepository.findById(id)
-                .map(userMapper::mapToDTO)
-                .orElseThrow(() -> new NotFoundException(
-                        USER_NOT_FOUND_EXCEPTION,
-                        USER_ENTITY_NAME,
-                        id.toString()));
         log.info("TbUserService.get - START");
         var response = userMapper.mapToDTO(findById(id));
+
         log.info("TbUserService.get - END - Retrieved user: [{}]", id);
         return response;
     }
@@ -86,18 +87,11 @@ public class TbUserService {
 
         tbUser.setPassword(passwordEncoder.encode(tbUserDTO.password()));
 
-        if (tbUserDTO.profileType() != null) {
-            final TbProfile profile = tbProfileRepository.findByType(tbUserDTO.profileType().name())
-                    .orElseThrow(() -> new NotFoundException(
-                            PROFILE_NOT_FOUND_EXCEPTION,
-                            PROFILE_ENTITY_NAME,
-                            null));
-            tbUser.setProfiles(Set.of(profile));
-        }
-        return tbUserRepository.save(tbUser).getId().toString();
         extractedProfiles(tbUserDTO.profileType(), tbUser);
+
         log.info("TbUserService.create - CONTINUE - Creating user: [{}]", tbUser);
         var response = tbUserRepository.save(tbUser).getId().toString();
+
         log.info("TbUserService.create - END - Created user: [{}]", response);
         return response;
     }
@@ -113,24 +107,21 @@ public class TbUserService {
         var response = tbUserRepository.findByName(name)
                 .map(userMapper::mapToDTO)
                 .orElseThrow();
+
         log.info("TbUserService.get - END - Retrieved user: [{}]", name);
         return response;
     }
 
-    public void update(final UUID id, final TbUserCreateDTO tbUserDTO) {
-        final TbUser tbUser = tbUserRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(
-                        USER_NOT_FOUND_EXCEPTION,
-                        USER_ENTITY_NAME,
-                        id.toString()));
-
     public void update(final UUID id, final TbUserUpdateDTO tbUserDTO) {
         log.info("TbUserService.update - START - Updating user: [{}]", id);
         final TbUser tbUser = findById(id);
+
         log.info("TbUserService.update - CONTINUE - Found user: [{}]", id);
         userMapper.updateUserFromDto(tbUserDTO, tbUser);
+
         extractedProfiles(tbUserDTO.profileType(), tbUser);
         log.info("TbUserService.update - CONTINUE - Updated user: [{}]", id);
+
         tbUserRepository.save(tbUser);
         log.info("TbUserService.update - END - Updated user: [{}]", id);
     }
@@ -150,36 +141,30 @@ public class TbUserService {
 
     public void deleteUser(final UUID id) {
         log.info("TbUserService.deleteUser - START - Starting user deletion process for user: [{}]", id);
-        
-        final TbUser user = tbUserRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(
-                        USER_NOT_FOUND_EXCEPTION,
-                        USER_ENTITY_NAME,
-                        id.toString()));
-        
         final TbUser user = findById(id);
+
         log.info("TbUserService.deleteUser - CONTINUE - User found. Starting cleanup process. - userName: [{}], userEmail: [{}]", user.getName(), user.getEmail());
         publisher.publishEvent(new BeforeDeleteTbUser(id));
+
         log.info("TbUserService.deleteUser - CONTINUE - Clearing {} profile associations for user id: [{}]", user.getProfiles().size(), id);
         user.getProfiles().clear();
+
         tbUserRepository.save(user);
         log.info("TbUserService.deleteUser - CONTINUE - Deleting user with id: [{}]", id);
+
         tbUserRepository.delete(user);
         log.info("TbUserService.deleteUser - END - Deletion completed successfully for user: [{}]", id);
     }
 
-    public void updatePassword(final UUID id, final TbUserUpdatePasswordDTO tbUserUpdatePasswordDTO) {
+    public void updatePassword(final UUID id, final TbUserUpdatePasswordDTO dto) {
         log.info("TbUserService.updatePassword - START - Starting password update process for user: [{}]", id);
         final TbUser tbUser = findById(id);
+
         log.info("TbUserService.updatePassword - CONTINUE - User found. Updating password for user: [{}]", id);
-        userMapper.updateUserFromDtoOnlyPassword(tbUserUpdatePasswordDTO, tbUser);
+        tbUser.setPassword(passwordEncoder.encode(dto.password()));
+
         tbUserRepository.save(tbUser);
         log.info("TbUserService.updatePassword - END - Password updated successfully for user: [{}]", id);
-    }
-
-    public boolean emailExists(final String email) {
-        log.info("TbUserService.emailExists - START - Checking if email exists: [{}]", email);
-        return tbUserRepository.existsByEmailIgnoreCase(email);
     }
 
     @EventListener(BeforeDeleteTbProfile.class)
@@ -192,7 +177,7 @@ public class TbUserService {
     private TbUser findById(final UUID id) {
         return tbUserRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
-                        ExceptionsKeys.USER_NOT_FOUND_EXCEPTION.toString(),
+                        USER_NOT_FOUND_EXCEPTION,
                         USER_ENTITY_NAME,
                         id.toString()));
     }
