@@ -63,12 +63,7 @@ public class TbUserService {
 
     public TbUserResponseDTO get(final UUID id) {
         log.info("TbUserService.get - START");
-        var response = tbUserRepository.findById(id)
-                .map(userMapper::mapToDTO)
-                .orElseThrow(() -> new NotFoundException(
-                        ExceptionsKeys.USER_NOT_FOUND_EXCEPTION.toString(),
-                        USER_ENTITY_NAME,
-                        id.toString()));
+        var response = userMapper.mapToDTO(findById(id));
         log.info("TbUserService.get - END - Retrieved user: [{}]", id);
         return response;
     }
@@ -118,30 +113,21 @@ public class TbUserService {
 
     public void deleteUser(final UUID id) {
         log.info("TbUserService.deleteUser - START - Starting user deletion process for user: [{}]", id);
-
-        final TbUser user = tbUserRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(
-                        ExceptionsKeys.USER_NOT_FOUND_EXCEPTION.toString(),
-                        USER_ENTITY_NAME,
-                        id.toString()));
-
+        final TbUser user = findById(id);
         log.info("TbUserService.deleteUser - CONTINUE - User found. Starting cleanup process. - userName: [{}], userEmail: [{}]", user.getName(), user.getEmail());
-
         publisher.publishEvent(new BeforeDeleteTbUser(id));
-
         log.info("TbUserService.deleteUser - CONTINUE - Clearing {} profile associations for user id: [{}]", user.getProfiles().size(), id);
         user.getProfiles().clear();
         tbUserRepository.save(user);
-
         log.info("TbUserService.deleteUser - CONTINUE - Deleting user with id: [{}]", id);
         tbUserRepository.delete(user);
-
         log.info("TbUserService.deleteUser - END - Deletion completed successfully for user: [{}]", id);
     }
 
     public void updatePassword(final UUID id, final TbUserUpdatePasswordDTO tbUserUpdatePasswordDTO) {
         log.info("TbUserService.updatePassword - START - Starting password update process for user: [{}]", id);
         final TbUser tbUser = findById(id);
+        log.info("TbUserService.updatePassword - CONTINUE - User found. Updating password for user: [{}]", id);
         userMapper.updateUserFromDtoOnlyPassword(tbUserUpdatePasswordDTO, tbUser);
         tbUserRepository.save(tbUser);
         log.info("TbUserService.updatePassword - END - Password updated successfully for user: [{}]", id);
@@ -159,7 +145,7 @@ public class TbUserService {
                 tbUser.getProfiles().removeIf(tbProfile -> tbProfile.getId().equals(event.getId())));
     }
 
-    private TbUser findById(final UUID id){
+    private TbUser findById(final UUID id) {
         return tbUserRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         ExceptionsKeys.USER_NOT_FOUND_EXCEPTION.toString(),
