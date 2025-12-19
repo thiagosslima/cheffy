@@ -3,6 +3,8 @@ package br.com.fiap.cheffy.mapper;
 import br.com.fiap.cheffy.domain.TbUser;
 import br.com.fiap.cheffy.model.TbUserCreateDTO;
 import br.com.fiap.cheffy.model.TbUserResponseDTO;
+import br.com.fiap.cheffy.model.TbUserUpdateDTO;
+import br.com.fiap.cheffy.model.TbUserUpdatePasswordDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -18,6 +20,8 @@ public interface UserMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "profiles", ignore = true)
-    void updateUserFromDto(TbUserCreateDTO tbUserDTO, @MappingTarget TbUser tbUser);
+    void updateUserFromDto(TbUserUpdateDTO tbUserDTO, @MappingTarget TbUser tbUser);
+
+    void updateUserFromDtoOnlyPassword(TbUserUpdatePasswordDTO tbUserUpdatePasswordDTO, @MappingTarget TbUser tbUser);
 
 }
