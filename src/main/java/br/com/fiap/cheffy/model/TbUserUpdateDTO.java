@@ -1,24 +1,17 @@
 package br.com.fiap.cheffy.model;
 
-import br.com.fiap.cheffy.domain.ProfileType;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record TbUserUpdateDTO(
-        @NotBlank
-        @Size(max = 255)
+
+        @Size(min = 3, max = 80, message = "Invalid name")
+        @NotBlank(message = "Name cannot be empty")
         String name,
 
-        @NotBlank
-        @Size(max = 255)
-        @TbUserEmailUnique
-        String email,
-
-        @NotBlank
-        @Size(max = 255)
-        String login,
-
-        ProfileType profileType
+        @Email(message = "e-mail is not valid")
+        @NotBlank(message = "e-mail cannot be empty")
+        String email
 ) {
 }

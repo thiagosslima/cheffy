@@ -71,11 +71,11 @@ public class TbUserResource {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<String> updateTbUser(@PathVariable(name = "id") final String id,
-                                               @RequestBody @Valid final TbUserUpdateDTO tbUserDTO) {
+    public ResponseEntity<UUID> updateTbUser(@PathVariable(name = "id") final UUID id,
+                                             @RequestBody @Valid final TbUserUpdateDTO userUpdateDTO) {
         addLogTradeId();
         log.info("TbUserResource.updateTbUser - START - Update user");
-        tbUserService.update(UUID.fromString(id), tbUserDTO);
+        tbUserService.update(id, userUpdateDTO);
         log.info("TbUserResource.updateTbUser - END - User updated [{}]", id);
         MDC.clear();
         return ResponseEntity.ok(id);
@@ -107,4 +107,3 @@ public class TbUserResource {
         MDC.put("traceId", UUID.randomUUID().toString());
     }
 }
-

@@ -17,4 +17,6 @@ public interface TbUserRepository extends JpaRepository<TbUser, UUID> {
 
     Optional<TbUser> findByName(String name);
 
+    Optional<TbUser> findByEmail(String email);
+
 }

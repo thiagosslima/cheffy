@@ -12,6 +12,7 @@ import br.com.fiap.cheffy.model.TbUserCreateDTO;
 import br.com.fiap.cheffy.model.TbUserResponseDTO;
 import br.com.fiap.cheffy.model.TbUserUpdateDTO;
 import br.com.fiap.cheffy.model.TbUserUpdatePasswordDTO;
+import br.com.fiap.cheffy.mapper.TbUserUpdateMapper;
 import br.com.fiap.cheffy.repos.TbProfileRepository;
 import br.com.fiap.cheffy.repos.TbUserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -35,6 +37,7 @@ public class TbUserService {
     private final TbProfileRepository tbProfileRepository;
     private final ApplicationEventPublisher publisher;
     private final UserMapper userMapper;
+    private final TbUserUpdateMapper userUpdateMapper;
 
     private static final String USER_ENTITY_NAME = "User";
     private static final String PROFILE_ENTITY_NAME = "Profile";
@@ -43,12 +46,14 @@ public class TbUserService {
             final TbUserRepository tbUserRepository,
             final TbProfileRepository tbProfileRepository,
             final ApplicationEventPublisher publisher,
-            final UserMapper userMapper) {
+            final UserMapper userMapper,
+            final TbUserUpdateMapper userUpdateMapper) {
 
         this.tbUserRepository = tbUserRepository;
         this.tbProfileRepository = tbProfileRepository;
         this.publisher = publisher;
         this.userMapper = userMapper;
+        this.userUpdateMapper = userUpdateMapper;
     }
 
     public List<TbUserResponseDTO> findAll() {
@@ -87,13 +92,17 @@ public class TbUserService {
         return response;
     }
 
-    public void update(final UUID id, final TbUserUpdateDTO tbUserDTO) {
+    public void update(final UUID id, final TbUserUpdateDTO userUpdateDTO) {
         log.info("TbUserService.update - START - Updating user: [{}]", id);
-        final TbUser tbUser = findById(id);
-        log.info("TbUserService.update - CONTINUE - Found user: [{}]", id);
-        userMapper.updateUserFromDto(tbUserDTO, tbUser);
-        extractedProfiles(tbUserDTO.profileType(), tbUser);
-        log.info("TbUserService.update - CONTINUE - Updated user: [{}]", id);
+        if(existsUserWithEmail(userUpdateDTO.email(), id)){
+            throw new RuntimeException("A user with the e-mail already exists");
+        }
+        final TbUser tbUser = tbUserRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(
+                        ExceptionsKeys.USER_NOT_FOUND_EXCEPTION.toString(),
+                        USER_ENTITY_NAME,
+                        id.toString()));
+        userUpdateMapper.updateEntityFromDto(userUpdateDTO, tbUser);
         tbUserRepository.save(tbUser);
         log.info("TbUserService.update - END - Updated user: [{}]", id);
     }
@@ -136,6 +145,13 @@ public class TbUserService {
     public boolean emailExists(final String email) {
         log.info("TbUserService.emailExists - START - Checking if email exists: [{}]", email);
         return tbUserRepository.existsByEmailIgnoreCase(email);
+    }
+
+
+    private boolean existsUserWithEmail(String email, UUID idToExclude) {
+        return tbUserRepository.findByEmail(email)
+                .filter(tbUser -> !Objects.equals(tbUser.getId(), idToExclude))
+                .isPresent();
     }
 
     @EventListener(BeforeDeleteTbProfile.class)
