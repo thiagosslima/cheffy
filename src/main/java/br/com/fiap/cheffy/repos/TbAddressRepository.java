@@ -9,5 +9,7 @@ import java.util.UUID;
 public interface TbAddressRepository extends JpaRepository<TbAddress, Long> {
 
     TbAddress findFirstByUserId(UUID id);
+    
+    void deleteAllByUserId(UUID userId);
 
 }

@@ -23,7 +23,7 @@ public record TbUserCreateDTO(
         @Size(min = 8, max = 50, message = "The password needs to be between 8 and 50 chars")
         String password,
 
-        @NotBlank
+        @NotNull
         ProfileType profileType
 ) {
 }
