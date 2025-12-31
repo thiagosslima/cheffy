@@ -19,6 +19,8 @@ public interface TbUserRepository extends JpaRepository<TbUser, UUID> {
 
     Optional<TbUser> findByName(String name);
 
+    Optional<TbUser> findByEmail(String email);
+
     boolean existsByEmailOrLogin(String email,  String login);
 
     @Query("""
