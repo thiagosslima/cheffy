@@ -24,6 +24,13 @@ public interface TbUserRepository extends JpaRepository<TbUser, UUID> {
     @Query("""
             SELECT distinct u FROM TbUser u 
                     JOIN FETCH u.profiles
+                WHERE u.id = :id 
+            """)
+    Optional<TbUser> findById(@Param("id") UUID id);
+
+    @Query("""
+            SELECT distinct u FROM TbUser u 
+                    JOIN FETCH u.profiles
                 WHERE u.login = :login 
             """)
     Optional<TbUser> findByLogin(@Param("login") String login);

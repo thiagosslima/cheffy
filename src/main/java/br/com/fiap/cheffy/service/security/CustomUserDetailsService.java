@@ -1,6 +1,7 @@
 package br.com.fiap.cheffy.service.security;
 
 import br.com.fiap.cheffy.domain.TbUser;
+import br.com.fiap.cheffy.model.security.AuthenticatedUser;
 import br.com.fiap.cheffy.repos.TbUserRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,7 +32,24 @@ public class CustomUserDetailsService implements UserDetailsService {
                         new UsernameNotFoundException("Invalid credentials")
                 );
 
-        return new org.springframework.security.core.userdetails.User(
+        return new AuthenticatedUser(
+                user.getId(),
+                user.getLogin(),
+                user.getPassword(),
+                mapProfilesToAuthorities(user)
+        );
+    }
+
+    public AuthenticatedUser loadUserById(UUID id)
+            throws UsernameNotFoundException {
+
+        TbUser user = tbUserRepository.findById(id)
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("Invalid credentials")
+                );
+
+        return new AuthenticatedUser(
+                user.getId(),
                 user.getLogin(),
                 user.getPassword(),
                 mapProfilesToAuthorities(user)

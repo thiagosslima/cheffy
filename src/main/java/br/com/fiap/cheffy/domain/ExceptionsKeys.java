@@ -22,7 +22,10 @@ public enum ExceptionsKeys {
     REGISTER_FAILED_EXCEPTION,
 
     //Login
-    LOGIN_FAILED_EXCEPTION
+    LOGIN_FAILED_EXCEPTION,
+
+    //Auth
+    TOKEN_EXPIRED_EXCEPTION
 
 
 }

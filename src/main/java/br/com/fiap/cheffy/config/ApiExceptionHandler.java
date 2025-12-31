@@ -45,6 +45,24 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String PROPERTY_BINDING_ERROR = ExceptionsKeys.PROPERTY_BINDING_ERROR.toString();
     private static final String GENERIC_RESOURCE_NOT_FOUND = ExceptionsKeys.GENERIC_RESOURCE_NOT_FOUND.toString();
 
+    @ExceptionHandler(TokenExpiredException.class)
+    private ResponseEntity<Object> handleTokenExpiredException(TokenExpiredException ex, WebRequest request) {
+
+        String title = getExceptionName(ex);
+        String message = getMessage(ex.getMessage()) ;
+
+        HttpStatus httpStatusCode = HttpStatus.UNAUTHORIZED;
+
+        Problem problem = createProblemBuilder(
+                httpStatusCode,
+                title,
+                message)
+                .userMessage(getMessage(GENERIC_ERROR_MESSAGE))
+                .build();
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), httpStatusCode, request);
+
+    }
 
     @ExceptionHandler(LoginFailedException.class)
     private ResponseEntity<Object> handleLoginFailedException(LoginFailedException ex, WebRequest request) {
@@ -69,7 +87,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(RegisterFailedException.class)
     private ResponseEntity<Object> handleRegisterFailedException(RegisterFailedException ex, WebRequest request) {
 
-        String title = ex.getClass().getSimpleName();
+        String title = getExceptionName(ex);
         String message = getMessage(ex.getMessage()) ;
 
         HttpStatus httpStatusCode = HttpStatus.NOT_FOUND;
@@ -88,7 +106,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     private ResponseEntity<Object> handleNotFoundException(NotFoundException ex, WebRequest request) {
 
-        String title = ex.getEntityName() + ex.getClass().getSimpleName();
+        String title = ex.getEntityName() + getExceptionName(ex);;
         String message = ex.getId() != null ? getMessage(ex.getMessage()) + ex.getId() : getMessage(GENERIC_RESOURCE_NOT_FOUND);
 
         HttpStatus httpStatusCode = HttpStatus.NOT_FOUND;
@@ -259,7 +277,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                 .detail(detail);
     }
 
-    private static String getExceptionName(LoginFailedException ex) {
+    private static String getExceptionName(Exception ex) {
         return ex.getClass().getSimpleName();
     }
 
