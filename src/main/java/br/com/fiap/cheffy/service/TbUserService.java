@@ -55,8 +55,7 @@ public class TbUserService {
             final TbProfileRepository tbProfileRepository,
             final ApplicationEventPublisher publisher,
             final UserMapper userMapper,
-            final PasswordEncoder passwordEncoder) {
-            final UserMapper userMapper,
+            final PasswordEncoder passwordEncoder,
             final TbUserUpdateMapper userUpdateMapper) {
 
         this.tbUserRepository = tbUserRepository;
@@ -113,6 +112,7 @@ public class TbUserService {
 
     public TbUserResponseDTO get(final String name) {
         log.info("TbUserService.get - START");
+
         var response = tbUserRepository.findByName(name)
                 .map(userMapper::mapToDTO)
                 .orElseThrow();
@@ -126,21 +126,16 @@ public class TbUserService {
         final TbUser tbUser = findById(id);
 
         log.info("TbUserService.update - CONTINUE - Found user: [{}]", id);
-        userMapper.updateUserFromDto(tbUserDTO, tbUser);
+        userMapper.updateUserFromDto(userUpdateDTO, tbUser);
 
-        extractedProfiles(tbUserDTO.profileType(), tbUser);
         log.info("TbUserService.update - CONTINUE - Updated user: [{}]", id);
 
         if(existsUserWithEmail(userUpdateDTO.email(), id)){
             throw new RuntimeException("A user with the e-mail already exists");
         }
-        final TbUser tbUser = tbUserRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(
-                        ExceptionsKeys.USER_NOT_FOUND_EXCEPTION.toString(),
-                        USER_ENTITY_NAME,
-                        id.toString()));
-        userUpdateMapper.updateEntityFromDto(userUpdateDTO, tbUser);
+
         tbUserRepository.save(tbUser);
+
         log.info("TbUserService.update - END - Updated user: [{}]", id);
     }
 
@@ -183,11 +178,6 @@ public class TbUserService {
 
         tbUserRepository.save(tbUser);
         log.info("TbUserService.updatePassword - END - Password updated successfully for user: [{}]", id);
-    }
-
-    public boolean emailExists(final String email) {
-        log.info("TbUserService.emailExists - START - Checking if email exists: [{}]", email);
-        return tbUserRepository.existsByEmailIgnoreCase(email);
     }
 
 
