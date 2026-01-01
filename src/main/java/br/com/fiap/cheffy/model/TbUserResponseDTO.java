@@ -23,7 +23,6 @@ public class TbUserResponseDTO {
 
     @NotBlank
     @Size(max = 255)
-    @TbUserEmailUnique
     private String email;
 
     @NotBlank

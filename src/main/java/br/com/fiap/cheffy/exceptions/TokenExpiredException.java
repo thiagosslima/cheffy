@@ -6,10 +6,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class DeserializationException extends ApiException {
+public class TokenExpiredException extends ApiException {
 
-    public DeserializationException(ExceptionsKeys message) {
+    public TokenExpiredException(ExceptionsKeys message) {
         super(message);
     }
-
 }

@@ -18,7 +18,14 @@ public enum ExceptionsKeys {
     ADRESS_NOT_FOUND_EXCEPTION,
 
     //User
-    USER_NOT_FOUND_EXCEPTION
+    USER_NOT_FOUND_EXCEPTION,
+    REGISTER_FAILED_EXCEPTION,
+
+    //Login
+    LOGIN_FAILED_EXCEPTION,
+
+    //Auth
+    TOKEN_EXPIRED_EXCEPTION
 
 
 }

@@ -1,10 +1,9 @@
 package br.com.fiap.cheffy.config;
 import br.com.fiap.cheffy.domain.ExceptionsKeys;
 import br.com.fiap.cheffy.domain.ExceptionsKeys.*;
-import br.com.fiap.cheffy.exceptions.ApiInternalServerErrorException;
-import br.com.fiap.cheffy.exceptions.DeserializationException;
-import br.com.fiap.cheffy.exceptions.NotFoundException;
+import br.com.fiap.cheffy.exceptions.*;
 import br.com.fiap.cheffy.exceptions.model.Problem;
+import ch.qos.logback.core.LogbackException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.PropertyBindingException;
@@ -46,10 +45,68 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String PROPERTY_BINDING_ERROR = ExceptionsKeys.PROPERTY_BINDING_ERROR.toString();
     private static final String GENERIC_RESOURCE_NOT_FOUND = ExceptionsKeys.GENERIC_RESOURCE_NOT_FOUND.toString();
 
+    @ExceptionHandler(TokenExpiredException.class)
+    private ResponseEntity<Object> handleTokenExpiredException(TokenExpiredException ex, WebRequest request) {
+
+        String title = getExceptionName(ex);
+        String message = getMessage(ex.getMessage()) ;
+
+        HttpStatus httpStatusCode = HttpStatus.UNAUTHORIZED;
+
+        Problem problem = createProblemBuilder(
+                httpStatusCode,
+                title,
+                message)
+                .userMessage(getMessage(GENERIC_ERROR_MESSAGE))
+                .build();
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), httpStatusCode, request);
+
+    }
+
+    @ExceptionHandler(LoginFailedException.class)
+    private ResponseEntity<Object> handleLoginFailedException(LoginFailedException ex, WebRequest request) {
+
+        String title = getExceptionName(ex);
+        String message = getMessage(ex.getMessage()) ;
+        String detail = ex.getOriginalMessage();
+
+        HttpStatus httpStatusCode = HttpStatus.NOT_FOUND;
+
+        Problem problem = createProblemBuilder(
+                httpStatusCode,
+                title,
+                detail)
+                .userMessage(message)
+                .build();
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), httpStatusCode, request);
+
+    }
+
+    @ExceptionHandler(RegisterFailedException.class)
+    private ResponseEntity<Object> handleRegisterFailedException(RegisterFailedException ex, WebRequest request) {
+
+        String title = getExceptionName(ex);
+        String message = getMessage(ex.getMessage()) ;
+
+        HttpStatus httpStatusCode = HttpStatus.NOT_FOUND;
+
+        Problem problem = createProblemBuilder(
+                httpStatusCode,
+                title,
+                message)
+                .userMessage(message)
+                .build();
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), httpStatusCode, request);
+
+    }
+
     @ExceptionHandler(NotFoundException.class)
     private ResponseEntity<Object> handleNotFoundException(NotFoundException ex, WebRequest request) {
 
-        String title = ex.getEntityName() + ex.getClass().getSimpleName();
+        String title = ex.getEntityName() + getExceptionName(ex);;
         String message = ex.getId() != null ? getMessage(ex.getMessage()) + ex.getId() : getMessage(GENERIC_RESOURCE_NOT_FOUND);
 
         HttpStatus httpStatusCode = HttpStatus.NOT_FOUND;
@@ -218,6 +275,10 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                 .title(title)
                 .timestamp(LocalDateTime.now())
                 .detail(detail);
+    }
+
+    private static String getExceptionName(Exception ex) {
+        return ex.getClass().getSimpleName();
     }
 
     private String getMessage(String key) {
