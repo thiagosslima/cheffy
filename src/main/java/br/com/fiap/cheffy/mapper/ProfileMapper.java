@@ -1,13 +1,13 @@
 package br.com.fiap.cheffy.mapper;
 
-import br.com.fiap.cheffy.domain.TbProfile;
-import br.com.fiap.cheffy.model.TbProfileDTO;
+import br.com.fiap.cheffy.model.entities.Profile;
+import br.com.fiap.cheffy.model.dtos.ProfileDTO;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface ProfileMapper {
 
-    TbProfileDTO mapToDTO(final TbProfile tbProfile);
+    ProfileDTO mapToDTO(final Profile profile);
 
-    TbProfile mapToEntity(final TbProfileDTO tbProfileDTO);
+    Profile mapToEntity(final ProfileDTO profileDTO);
 }

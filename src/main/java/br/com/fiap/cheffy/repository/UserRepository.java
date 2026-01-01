@@ -1,6 +1,6 @@
-package br.com.fiap.cheffy.repos;
+package br.com.fiap.cheffy.repository;
 
-import br.com.fiap.cheffy.domain.TbUser;
+import br.com.fiap.cheffy.model.entities.User;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,31 +11,31 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 
-public interface TbUserRepository extends JpaRepository<TbUser, UUID> {
+public interface UserRepository extends JpaRepository<User, UUID> {
 
-    List<TbUser> findAllByProfilesId(Long id);
+    List<User> findAllByProfilesId(Long id);
 
     boolean existsByEmailIgnoreCase(String email);
 
-    Optional<TbUser> findByName(String name);
+    Optional<User> findByName(String name);
 
-    Optional<TbUser> findByEmail(String email);
+    Optional<User> findByEmail(String email);
 
     boolean existsByEmailOrLogin(String email,  String login);
 
     @Query("""
-            SELECT distinct u FROM TbUser u 
+            SELECT distinct u FROM User u 
                     JOIN FETCH u.profiles
                 WHERE u.id = :id 
             """)
-    Optional<TbUser> findById(@Param("id") UUID id);
+    Optional<User> findById(@Param("id") UUID id);
 
     @Query("""
-            SELECT distinct u FROM TbUser u 
+            SELECT distinct u FROM User u 
                     JOIN FETCH u.profiles
                 WHERE u.login = :login 
             """)
-    Optional<TbUser> findByLogin(@Param("login") String login);
+    Optional<User> findByLogin(@Param("login") String login);
 
 
 }

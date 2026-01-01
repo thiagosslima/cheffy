@@ -12,7 +12,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.UUID;
 
-import static br.com.fiap.cheffy.domain.ExceptionsKeys.TOKEN_EXPIRED_EXCEPTION;
+import static br.com.fiap.cheffy.model.enums.ExceptionsKeys.TOKEN_EXPIRED_EXCEPTION;
 
 @Service
 public class JwtService {

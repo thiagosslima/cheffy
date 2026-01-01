@@ -1,4 +1,4 @@
-package br.com.fiap.cheffy.model;
+package br.com.fiap.cheffy.model.dtos;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class TbProfileDTO {
+public class ProfileDTO {
 
     @NotNull
     @Size(max = 255)

@@ -1,45 +1,45 @@
 package br.com.fiap.cheffy.service;
 
-import br.com.fiap.cheffy.domain.TbProfile;
+import br.com.fiap.cheffy.model.entities.Profile;
 import br.com.fiap.cheffy.events.BeforeDeleteTbProfile;
 import br.com.fiap.cheffy.exceptions.NotFoundException;
 import br.com.fiap.cheffy.mapper.ProfileMapper;
-import br.com.fiap.cheffy.model.TbProfileDTO;
-import br.com.fiap.cheffy.repos.TbProfileRepository;
+import br.com.fiap.cheffy.model.dtos.ProfileDTO;
+import br.com.fiap.cheffy.repository.ProfileRepository;
 import java.util.List;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static br.com.fiap.cheffy.domain.ExceptionsKeys.PROFILE_NOT_FOUND_EXCEPTION;
+import static br.com.fiap.cheffy.model.enums.ExceptionsKeys.PROFILE_NOT_FOUND_EXCEPTION;
 
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class TbProfileService {
+public class ProfileService {
 
-    private final TbProfileRepository tbProfileRepository;
+    private final ProfileRepository profileRepository;
     private final ApplicationEventPublisher publisher;
     private final ProfileMapper mapper;
     private static final String ENTITY_NAME = "Profile";
 
-    public TbProfileService(final TbProfileRepository tbProfileRepository,
-            final ApplicationEventPublisher publisher, final ProfileMapper mapper) {
-        this.tbProfileRepository = tbProfileRepository;
+    public ProfileService(final ProfileRepository profileRepository,
+                          final ApplicationEventPublisher publisher, final ProfileMapper mapper) {
+        this.profileRepository = profileRepository;
         this.publisher = publisher;
         this.mapper = mapper;
     }
 
-    public List<TbProfileDTO> findAll() {
-        final List<TbProfile> tbProfiles = tbProfileRepository.findAll(Sort.by("id"));
-        return tbProfiles.stream()
+    public List<ProfileDTO> findAll() {
+        final List<Profile> profiles = profileRepository.findAll(Sort.by("id"));
+        return profiles.stream()
                 .map(mapper::mapToDTO)
                 .toList();
     }
 
-    public TbProfileDTO get(final Long id) {
-        return tbProfileRepository.findById(id)
+    public ProfileDTO get(final Long id) {
+        return profileRepository.findById(id)
                 .map(mapper::mapToDTO)
                 .orElseThrow( () -> new NotFoundException(
                         PROFILE_NOT_FOUND_EXCEPTION,
@@ -48,29 +48,29 @@ public class TbProfileService {
                 ));
     }
 
-    public Long create(final TbProfileDTO tbProfileDTO) {
-        TbProfile entity = mapper.mapToEntity(tbProfileDTO);
-        return tbProfileRepository.save(entity).getId();
+    public Long create(final ProfileDTO profileDTO) {
+        Profile entity = mapper.mapToEntity(profileDTO);
+        return profileRepository.save(entity).getId();
     }
 
-    public void update(final Long id, final TbProfileDTO tbProfileDTO) {
-        final TbProfile tbProfile = tbProfileRepository.findById(id)
+    public void update(final Long id, final ProfileDTO profileDTO) {
+        final Profile profile = profileRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         PROFILE_NOT_FOUND_EXCEPTION,
                         ENTITY_NAME,
                         id.toString()));
-        mapper.mapToEntity(tbProfileDTO);
-        tbProfileRepository.save(tbProfile);
+        mapper.mapToEntity(profileDTO);
+        profileRepository.save(profile);
     }
 
     public void delete(final Long id) {
-        final TbProfile tbProfile = tbProfileRepository.findById(id)
+        final Profile profile = profileRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         PROFILE_NOT_FOUND_EXCEPTION,
                         ENTITY_NAME,
                         id.toString()));
         publisher.publishEvent(new BeforeDeleteTbProfile(id));
-        tbProfileRepository.delete(tbProfile);
+        profileRepository.delete(profile);
     }
 
 }

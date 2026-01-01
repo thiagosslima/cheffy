@@ -1,4 +1,4 @@
-package br.com.fiap.cheffy.domain;
+package br.com.fiap.cheffy.model.enums;
 
 public enum ProfileType {
 

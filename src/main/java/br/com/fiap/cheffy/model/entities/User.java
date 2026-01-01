@@ -1,4 +1,4 @@
-package br.com.fiap.cheffy.domain;
+package br.com.fiap.cheffy.model.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,7 +27,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
-public class TbUser {
+public class User {
 
     @Id
     @Column(nullable = false, updatable = false)
@@ -54,10 +54,10 @@ public class TbUser {
             joinColumns = @JoinColumn(name = "tb_user_id"),
             inverseJoinColumns = @JoinColumn(name = "tb_profile_id")
     )
-    private Set<TbProfile> profiles = new HashSet<>();
+    private Set<Profile> profiles = new HashSet<>();
 
     @OneToMany(mappedBy = "user")
-    private Set<TbAddress> addresses = new HashSet<>();
+    private Set<Address> addresses = new HashSet<>();
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

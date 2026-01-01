@@ -1,4 +1,4 @@
-package br.com.fiap.cheffy.model;
+package br.com.fiap.cheffy.model.dtos;
 
 import jakarta.validation.constraints.NotEmpty;
 

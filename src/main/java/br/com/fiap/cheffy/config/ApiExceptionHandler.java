@@ -1,9 +1,7 @@
 package br.com.fiap.cheffy.config;
-import br.com.fiap.cheffy.domain.ExceptionsKeys;
-import br.com.fiap.cheffy.domain.ExceptionsKeys.*;
+import br.com.fiap.cheffy.model.enums.ExceptionsKeys;
 import br.com.fiap.cheffy.exceptions.*;
 import br.com.fiap.cheffy.exceptions.model.Problem;
-import ch.qos.logback.core.LogbackException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.PropertyBindingException;

@@ -1,7 +1,7 @@
-package br.com.fiap.cheffy.rest;
+package br.com.fiap.cheffy.controller;
 
-import br.com.fiap.cheffy.model.LoginRequestDTO;
-import br.com.fiap.cheffy.model.TokenResponseDTO;
+import br.com.fiap.cheffy.model.dtos.LoginRequestDTO;
+import br.com.fiap.cheffy.model.dtos.TokenResponseDTO;
 import br.com.fiap.cheffy.service.security.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;

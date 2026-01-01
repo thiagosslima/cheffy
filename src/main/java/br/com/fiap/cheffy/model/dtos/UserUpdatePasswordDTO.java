@@ -1,10 +1,9 @@
-package br.com.fiap.cheffy.model;
+package br.com.fiap.cheffy.model.dtos;
 
 import br.com.fiap.cheffy.validation.StrongPassword;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
-public record TbUserUpdatePasswordDTO(
+public record UserUpdatePasswordDTO(
         @NotBlank
         @StrongPassword(minLength = 12)
         String password

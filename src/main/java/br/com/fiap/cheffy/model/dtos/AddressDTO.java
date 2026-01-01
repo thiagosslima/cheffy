@@ -1,4 +1,4 @@
-package br.com.fiap.cheffy.model;
+package br.com.fiap.cheffy.model.dtos;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class TbAddressDTO {
+public class AddressDTO {
 
     private Long id;
 
