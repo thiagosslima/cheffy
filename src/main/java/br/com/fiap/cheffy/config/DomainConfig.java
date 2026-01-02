@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 
 @Configuration
-@EntityScan("br.com.fiap.cheffy.model.entities")
+@EntityScan("br.com.fiap.cheffy.model")
 @EnableJpaRepositories("br.com.fiap.cheffy.repository")
 @EnableTransactionManagement
 @EnableJpaAuditing(dateTimeProviderRef = "auditingDateTimeProvider")

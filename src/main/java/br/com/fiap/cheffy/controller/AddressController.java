@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/tbAddresses", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/addresses", produces = MediaType.APPLICATION_JSON_VALUE)
 public class AddressController {
 
     private final AddressService addressService;

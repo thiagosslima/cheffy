@@ -1,15 +1,6 @@
 package br.com.fiap.cheffy.model.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 
 import java.time.OffsetDateTime;
 import java.util.HashSet;
@@ -25,6 +16,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
+@Table(name = "users")
 @Getter
 @Setter
 public class User {
@@ -50,9 +42,9 @@ public class User {
 
     @ManyToMany
     @JoinTable(
-            name = "tb_user_profile",
-            joinColumns = @JoinColumn(name = "tb_user_id"),
-            inverseJoinColumns = @JoinColumn(name = "tb_profile_id")
+            name = "user_profile",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "profile_id")
     )
     private Set<Profile> profiles = new HashSet<>();
 
