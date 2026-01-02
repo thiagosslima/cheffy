@@ -1,14 +1,11 @@
-package br.com.fiap.cheffy.domain;
+package br.com.fiap.cheffy.model.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import java.time.OffsetDateTime;
 import lombok.Getter;
@@ -22,7 +19,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
-public class TbAddress {
+public class Profile {
 
     @Id
     @Column(nullable = false, updatable = false)
@@ -38,33 +35,8 @@ public class TbAddress {
     )
     private Long id;
 
-    @Column(nullable = false)
-    private String streetName;
-
-    @Column(nullable = false)
-    private Integer number;
-
-    @Column(nullable = false)
-    private String city;
-
-    @Column(nullable = false)
-    private Integer postalCode;
-
-    @Column(nullable = false)
-    private String neighborhood;
-
-    @Column(nullable = false)
-    private String stateProvince;
-
-    @Column
-    private String addressLine;
-
-    @Column
-    private Boolean main;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private TbUser user;
+    @Column(nullable = false, unique = true)
+    private String type;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

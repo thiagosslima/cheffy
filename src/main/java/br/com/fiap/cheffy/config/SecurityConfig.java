@@ -40,8 +40,8 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("api/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/tbUsers").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/tbProfiles/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/profiles/**").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",

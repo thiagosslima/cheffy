@@ -1,6 +1,6 @@
-package br.com.fiap.cheffy.model;
+package br.com.fiap.cheffy.model.dtos;
 
-import br.com.fiap.cheffy.domain.ProfileType;
+import br.com.fiap.cheffy.model.enums.ProfileType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class TbUserResponseDTO {
+public class UserResponseDTO {
 
     private UUID id;
 

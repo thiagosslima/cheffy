@@ -1,10 +1,9 @@
 package br.com.fiap.cheffy.mapper;
 
-import br.com.fiap.cheffy.domain.TbUser;
-import br.com.fiap.cheffy.model.TbUserCreateDTO;
-import br.com.fiap.cheffy.model.TbUserResponseDTO;
-import br.com.fiap.cheffy.model.TbUserUpdateDTO;
-import br.com.fiap.cheffy.model.TbUserUpdatePasswordDTO;
+import br.com.fiap.cheffy.model.entities.User;
+import br.com.fiap.cheffy.model.dtos.UserCreateDTO;
+import br.com.fiap.cheffy.model.dtos.UserResponseDTO;
+import br.com.fiap.cheffy.model.dtos.UserUpdateDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -14,10 +13,10 @@ import org.mapstruct.ReportingPolicy;
 public interface UserMapper {
 
     @Mapping(target = "profiles", ignore = true)
-    TbUser mapToEntity(TbUserCreateDTO tbUserDTO);
+    User mapToEntity(UserCreateDTO tbUserDTO);
 
-    TbUserResponseDTO mapToDTO(TbUser tbUser);
+    UserResponseDTO mapToDTO(User user);
 
-    void updateUserFromDto(TbUserUpdateDTO tbUserDTO, @MappingTarget TbUser tbUser);
+    void updateUserFromDto(UserUpdateDTO tbUserDTO, @MappingTarget User user);
 
 }
