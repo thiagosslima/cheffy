@@ -123,11 +123,11 @@ public class UserService {
         final User user = findById(id);
 
         log.info("UserService.update - CONTINUE - Found user: [{}]", id);
-        userMapper.updateUserFromDto(userUpdateDTO, user);
+        userUpdateMapper.updateEntityFromDto(userUpdateDTO, user);
 
         log.info("UserService.update - CONTINUE - Updated user: [{}]", id);
 
-        if(existsUserWithEmail(userUpdateDTO.email(), id)){
+        if(userUpdateDTO.email() != null && existsUserWithEmail(userUpdateDTO.email(), id)){
             throw new RuntimeException("A user with the e-mail already exists");
         }
 
