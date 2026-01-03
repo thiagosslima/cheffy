@@ -1,5 +1,6 @@
 package br.com.fiap.cheffy.service;
 
+import br.com.fiap.cheffy.exceptions.UserEmailAlreadyExistsException;
 import br.com.fiap.cheffy.model.enums.ProfileType;
 import br.com.fiap.cheffy.model.entities.Profile;
 import br.com.fiap.cheffy.model.entities.User;
@@ -123,13 +124,12 @@ public class UserService {
         final User user = findById(id);
 
         log.info("UserService.update - CONTINUE - Found user: [{}]", id);
-        userUpdateMapper.updateEntityFromDto(userUpdateDTO, user);
-
-        log.info("UserService.update - CONTINUE - Updated user: [{}]", id);
 
         if(userUpdateDTO.email() != null && existsUserWithEmail(userUpdateDTO.email(), id)){
-            throw new RuntimeException("A user with the e-mail already exists");
+            throw new UserEmailAlreadyExistsException();
         }
+
+        userUpdateMapper.updateEntityFromDto(userUpdateDTO, user);
 
         userRepository.save(user);
 
