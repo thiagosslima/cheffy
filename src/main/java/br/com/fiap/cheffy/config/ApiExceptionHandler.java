@@ -215,8 +215,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, problem, headers, exceptionStatus, request);
     }
 
-    @ExceptionHandler(UserEmailAlreadyExistsException.class)
-    private ResponseEntity<Object> handleUserEmailAlreadyExistsException(UserEmailAlreadyExistsException ex, WebRequest request) {
+    @ExceptionHandler(InvalidOperationException.class)
+    private ResponseEntity<Object> handleInvalidOperationException(InvalidOperationException ex, WebRequest request) {
 
         String title = getExceptionName(ex);
         String message = getMessage(ex.getMessage());
