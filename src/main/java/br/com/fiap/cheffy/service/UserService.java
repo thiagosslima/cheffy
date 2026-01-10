@@ -112,7 +112,9 @@ public class UserService {
 
         var response = userRepository.findByName(name)
                 .map(userMapper::mapToDTO)
-                .orElseThrow();
+                .orElseThrow(() -> new NotFoundException(
+                        USER_NOT_FOUND_EXCEPTION,
+                        USER_ENTITY_NAME));
 
         log.info("UserService.get - END - Retrieved user: [{}]", name);
         return response;
@@ -123,7 +125,7 @@ public class UserService {
         final User user = findById(id);
 
         log.info("UserService.update - CONTINUE - Found user: [{}]", id);
-        userMapper.updateUserFromDto(userUpdateDTO, user);
+        userUpdateMapper.updateEntityFromDto(userUpdateDTO, user);
 
         log.info("UserService.update - CONTINUE - Updated user: [{}]", id);
 

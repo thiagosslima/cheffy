@@ -5,7 +5,13 @@ import br.com.fiap.cheffy.model.dtos.UserResponseDTO;
 import br.com.fiap.cheffy.model.dtos.UserUpdateDTO;
 import br.com.fiap.cheffy.model.dtos.UserUpdatePasswordDTO;
 import br.com.fiap.cheffy.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -17,10 +23,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-
+@Tag(
+        name = "User",
+        description = "Endpoints para gerenciamento do ciclo de vida de usuários: criação, consulta, atualização e exclusão"
+)
 @Slf4j
 @RestController
-@RequestMapping(value = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/users", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserController {
 
     private final UserService userService;
@@ -30,6 +39,17 @@ public class UserController {
     }
 
     @GetMapping
+    @Operation(summary = "Listar todos os usuários")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso",
+                    content =
+                    @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            array = @ArraySchema(schema = @Schema(implementation = UserResponseDTO.class)))
+            ),
+            @ApiResponse(responseCode = "401", description = "Token expirado"),
+            @ApiResponse(responseCode = "403", description = "Sem permissão para acessar este recurso"),
+            @ApiResponse(responseCode = "500", description = "Erro interno")
+    })
     public ResponseEntity<List<UserResponseDTO>> getAllTbUsers() {
         addLogTradeId();
         log.info("UserController.getAllTbUsers - START - Find all users");
@@ -40,6 +60,22 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @Operation(
+            summary = "Buscar usuário por ID",
+            description = "Retorna dados detalhados de um usuário específico através do UUID"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Usuário encontrado com sucesso",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = UserResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "401", description = "Token expirado"),
+            @ApiResponse(responseCode = "403", description = "Sem permissão para acessar este recurso"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado com o ID fornecido"),
+            @ApiResponse(responseCode = "500", description = "Erro interno")
+    })
     public ResponseEntity<UserResponseDTO> getTbUser(@PathVariable(name = "id") final String id) {
         addLogTradeId();
         log.info("UserController.getTbUser - START - Find user by id [{}]", id);
@@ -50,6 +86,22 @@ public class UserController {
     }
 
     @GetMapping("/name/{name}")
+    @Operation(
+            summary = "Buscar usuário por name",
+            description = "Retorna dados de um usuário através do nome de usuário"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Usuário encontrado com sucesso",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = UserResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "401", description = "Token expirado"),
+            @ApiResponse(responseCode = "403", description = "Sem permissão para acessar este recurso"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado com o name fornecido"),
+            @ApiResponse(responseCode = "500", description = "Erro interno")
+    })
     public ResponseEntity<UserResponseDTO> getTbUserByName(@PathVariable(name = "name") final String name) {
         addLogTradeId();
         log.info("UserController.getTbUserByName - START - Find user by name [{}]", name);
@@ -60,7 +112,25 @@ public class UserController {
     }
 
     @PostMapping
-    @ApiResponse(responseCode = "201")
+    @Operation(
+            summary = "Criar novo usuário",
+            description = "Cadastra novo usuário"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Usuário criado com sucesso - Retorna UUID do novo usuário",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(type = "string", format = "uuid")
+                    )
+            ),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos ou malformados"),
+            @ApiResponse(responseCode = "401", description = "Token expirado"),
+            @ApiResponse(responseCode = "403", description = "Sem permissão para acessar este recurso"),
+            @ApiResponse(responseCode = "409", description = "Conflito - Email ou Login já cadastrado"),
+            @ApiResponse(responseCode = "500", description = "Erro interno")
+    })
     public ResponseEntity<String> createTbUser(@RequestBody @Valid final UserCreateDTO tbUserDTO) {
         addLogTradeId();
         log.info("UserController.createTbUser - START - Create user");
@@ -71,17 +141,39 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<UUID> updateTbUser(@PathVariable(name = "id") final UUID id,
+    @Operation(
+            summary = "Atualizar usuário",
+            description = "Atualização parcial - apenas campos enviados são modificados"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Usuário atualizado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados de atualização inválidos"),
+            @ApiResponse(responseCode = "401", description = "Token expirado"),
+            @ApiResponse(responseCode = "403", description = "Sem permissão para acessar este recurso"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado"),
+            @ApiResponse(responseCode = "409", description = "Conflito - Email já cadastrado"),
+            @ApiResponse(responseCode = "500", description = "Erro interno")
+    })
+    public ResponseEntity<Void> updateTbUser(@PathVariable(name = "id") final UUID id,
                                              @RequestBody @Valid final UserUpdateDTO userUpdateDTO) {
         addLogTradeId();
         log.info("UserController.updateTbUser - START - Update user");
         userService.update(id, userUpdateDTO);
         log.info("UserController.updateTbUser - END - User updated [{}]", id);
         MDC.clear();
-        return ResponseEntity.ok(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/password")
+    @Operation(summary = "Atualizar senha do usuário")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Senha atualizada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Nova senha inválida"),
+            @ApiResponse(responseCode = "401", description = "Token expirado"),
+            @ApiResponse(responseCode = "403", description = "Sem permissão para acessar este recurso"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado"),
+            @ApiResponse(responseCode = "500", description = "Erro interno")
+    })
     public ResponseEntity<String> updatePassword(@PathVariable(name = "id") final String id,
                                                  @RequestBody @Valid final UserUpdatePasswordDTO userUpdatePasswordDTO) {
         addLogTradeId();
@@ -94,7 +186,15 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    @ApiResponse(responseCode = "204")
+    @Operation(summary = "Deletar usuário")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Usuário deletado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "ID inválido - formato UUID incorreto"),
+            @ApiResponse(responseCode = "401", description = "Token expirado"),
+            @ApiResponse(responseCode = "403", description = "Sem permissão para acessar este recurso"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado"),
+            @ApiResponse(responseCode = "500", description = "Erro interno")
+    })
     public ResponseEntity<Void> deleteUser(@PathVariable(name = "id") final String id) {
         addLogTradeId();
         log.info("UserController.deleteUser - START - Delete user: [{}]", id);
