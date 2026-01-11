@@ -1,13 +1,12 @@
 package br.com.fiap.cheffy.model.dtos;
 
-import br.com.fiap.cheffy.model.enums.ProfileType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -30,6 +29,6 @@ public class UserResponseDTO {
     private String login;
 
     @NotNull
-    private ProfileType profileType;
+    private List<String> profiles;
 
 }
