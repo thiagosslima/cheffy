@@ -16,4 +16,10 @@ public class NotFoundException extends BusinessException {
         this.entityName = entityName;
         this.id = id;
     }
+
+    public NotFoundException(ExceptionsKeys message, String entityName) {
+        super(message);
+        this.entityName = entityName;
+        this.id = null;
+    }
 }

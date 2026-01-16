@@ -69,7 +69,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         String message = getMessage(ex.getMessage()) ;
         String detail = ex.getOriginalMessage();
 
-        HttpStatus httpStatusCode = HttpStatus.NOT_FOUND;
+        HttpStatus httpStatusCode = HttpStatus.UNAUTHORIZED;
 
         Problem problem = createProblemBuilder(
                 httpStatusCode,
@@ -88,7 +88,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         String title = getExceptionName(ex);
         String message = getMessage(ex.getMessage()) ;
 
-        HttpStatus httpStatusCode = HttpStatus.NOT_FOUND;
+        HttpStatus httpStatusCode = HttpStatus.CONFLICT;
 
         Problem problem = createProblemBuilder(
                 httpStatusCode,

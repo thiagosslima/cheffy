@@ -113,7 +113,9 @@ public class UserService {
 
         var response = userRepository.findByName(name)
                 .map(userMapper::mapToDTO)
-                .orElseThrow();
+                .orElseThrow(() -> new NotFoundException(
+                        USER_NOT_FOUND_EXCEPTION,
+                        USER_ENTITY_NAME));
 
         log.info("UserService.get - END - Retrieved user: [{}]", name);
         return response;
