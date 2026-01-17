@@ -1,6 +1,9 @@
 package br.com.fiap.cheffy.service;
 
 import br.com.fiap.cheffy.exceptions.InvalidOperationException;
+import br.com.fiap.cheffy.mapper.AddressMapper;
+import br.com.fiap.cheffy.model.dtos.*;
+import br.com.fiap.cheffy.model.entities.Address;
 import br.com.fiap.cheffy.model.enums.ProfileType;
 import br.com.fiap.cheffy.model.entities.Profile;
 import br.com.fiap.cheffy.model.entities.User;
@@ -9,18 +12,13 @@ import br.com.fiap.cheffy.events.BeforeDeleteTbUser;
 import br.com.fiap.cheffy.exceptions.NotFoundException;
 import br.com.fiap.cheffy.exceptions.RegisterFailedException;
 import br.com.fiap.cheffy.mapper.UserMapper;
-import br.com.fiap.cheffy.model.dtos.UserCreateDTO;
-import br.com.fiap.cheffy.model.dtos.UserResponseDTO;
-import br.com.fiap.cheffy.model.dtos.UserUpdateDTO;
-import br.com.fiap.cheffy.model.dtos.UserUpdatePasswordDTO;
 import br.com.fiap.cheffy.mapper.UserUpdateMapper;
 import br.com.fiap.cheffy.repository.ProfileRepository;
 import br.com.fiap.cheffy.repository.UserRepository;
 
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
+import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
@@ -30,7 +28,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static br.com.fiap.cheffy.model.enums.ExceptionsKeys.*;
-import java.util.Objects;
 
 
 @Slf4j
@@ -44,6 +41,9 @@ public class UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final UserUpdateMapper userUpdateMapper;
+    private final AddressMapper addressMapper;
+    private final EntityManager entityManager;
+
 
     private static final String USER_ENTITY_NAME = "User";
     private static final String PROFILE_ENTITY_NAME = "Profile";
@@ -54,7 +54,9 @@ public class UserService {
             final ApplicationEventPublisher publisher,
             final UserMapper userMapper,
             final PasswordEncoder passwordEncoder,
-            final UserUpdateMapper userUpdateMapper) {
+            final UserUpdateMapper userUpdateMapper,
+            final AddressMapper addressMapper,
+            final EntityManager entityManager) {
 
         this.userRepository = userRepository;
         this.profileRepository = profileRepository;
@@ -62,7 +64,59 @@ public class UserService {
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
         this.userUpdateMapper = userUpdateMapper;
+        this.addressMapper = addressMapper;
+        this.entityManager = entityManager;
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void updateAddress(UUID userId, Long addressId, AddressPatchDTO dto) {
+
+        log.info("UserService.updateAddress - START");
+
+        User user = findByIdOrFail(userId);
+
+        Address address = user.findAddressByIdOrFail(addressId);
+
+        addressMapper.updateAddressFromDto(dto, address);
+
+        if (Boolean.TRUE.equals(dto.getMain())) {
+            user.setMainAddress(address);
+        }
+
+        log.info("UserService.updateAddress - END");
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void removeAddress(final UUID userId, final Long addressId) {
+
+        log.info("UserService.removeAddress - START");
+
+        final User user = findByIdOrFail(userId);
+        final Address address = user.findAddressByIdOrFail(addressId);
+
+        user.removeAddress(address);
+
+        log.info("UserService.removeAddress - END - ");
+
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public Long addAddress(final UUID userId, final AddressCreateDTO dto) {
+        log.info("UserService.addAddress - START");
+        final User user = findByIdOrFail(userId);
+
+        final Address address = addressMapper.mapToEntity(dto);
+
+        user.addAddress(address);
+
+        entityManager.flush();
+
+        log.info("UserService.addAddress - END - Created address: [{}]", address.getId());
+
+        return address.getId();
+
+    }
+
 
     public List<UserResponseDTO> findAll() {
         log.info("UserService.findAll - START");
@@ -79,26 +133,32 @@ public class UserService {
 
     public UserResponseDTO get(final UUID id) {
         log.info("UserService.get - START");
-        var response = userMapper.mapToDTO(findById(id));
+        var response = userMapper.mapToDTO(findByIdOrFail(id));
 
         log.info("UserService.get - END - Retrieved user: [{}]", id);
         return response;
     }
 
-    public String create(final UserCreateDTO tbUserDTO) {
+    public String create(final UserCreateDTO dto) {
         log.info("UserService.create - START");
-        final User user = userMapper.mapToEntity(tbUserDTO);
+
+        final User user = userMapper.mapToEntity(dto);
 
         throwExceptionCaseLoginOrEmailAlreadyExists(user);
 
-        user.setPassword(passwordEncoder.encode(tbUserDTO.password()));
+        user.setPassword(passwordEncoder.encode(dto.password()));
 
-        extractedProfiles(tbUserDTO.profileType(), user);
+        extractedProfiles(dto.profileType(), user);
+
+        final Address address = addressMapper.mapToEntity(dto.address());
+        user.addUserMainAddress(address);
 
         log.info("UserService.create - CONTINUE - Creating user: [{}]", user);
+
         var response = userRepository.save(user).getId().toString();
 
-        log.info("UserService.create - END - Created user: [{}]", response);
+        log.info("UserService.create - END - Created user [{}] with main address [{}]", response, address.getId());
+
         return response;
     }
 
@@ -123,7 +183,7 @@ public class UserService {
 
     public void update(final UUID id, final UserUpdateDTO userUpdateDTO) {
         log.info("UserService.update - START - Updating user: [{}]", id);
-        final User user = findById(id);
+        final User user = findByIdOrFail(id);
 
         log.info("UserService.update - CONTINUE - Found user: [{}]", id);
 
@@ -154,7 +214,7 @@ public class UserService {
 
     public void deleteUser(final UUID id) {
         log.info("UserService.deleteUser - START - Starting user deletion process for user: [{}]", id);
-        final User user = findById(id);
+        final User user = findByIdOrFail(id);
 
         log.info("UserService.deleteUser - CONTINUE - User found. Starting cleanup process. - userName: [{}], userEmail: [{}]", user.getName(), user.getEmail());
         publisher.publishEvent(new BeforeDeleteTbUser(id));
@@ -171,7 +231,7 @@ public class UserService {
 
     public void updatePassword(final UUID id, final UserUpdatePasswordDTO dto) {
         log.info("UserService.updatePassword - START - Starting password update process for user: [{}]", id);
-        final User user = findById(id);
+        final User user = findByIdOrFail(id);
 
         log.info("UserService.updatePassword - CONTINUE - User found. Updating password for user: [{}]", id);
         user.setPassword(passwordEncoder.encode(dto.password()));
@@ -194,7 +254,7 @@ public class UserService {
                 tbUser.getProfiles().removeIf(tbProfile -> tbProfile.getId().equals(event.getId())));
     }
 
-    private User findById(final UUID id) {
+    private User findByIdOrFail(final UUID id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         USER_NOT_FOUND_EXCEPTION,
