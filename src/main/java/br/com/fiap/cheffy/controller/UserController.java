@@ -1,9 +1,6 @@
 package br.com.fiap.cheffy.controller;
 
-import br.com.fiap.cheffy.model.dtos.UserCreateDTO;
-import br.com.fiap.cheffy.model.dtos.UserResponseDTO;
-import br.com.fiap.cheffy.model.dtos.UserUpdateDTO;
-import br.com.fiap.cheffy.model.dtos.UserUpdatePasswordDTO;
+import br.com.fiap.cheffy.model.dtos.*;
 import br.com.fiap.cheffy.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -36,6 +33,76 @@ public class UserController {
 
     public UserController(final UserService userService) {
         this.userService = userService;
+    }
+
+    @DeleteMapping("/{userId}/addresses/{addressId}")
+    @Operation(summary = "Remover endereço do usuário")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Endereço removido com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Usuário ou endereço não encontrado"),
+            @ApiResponse(responseCode = "400", description = "Operação não permitida"),
+            @ApiResponse(responseCode = "500", description = "Erro interno")
+    })
+    public ResponseEntity<Void> removeAddress(
+            @PathVariable UUID userId,
+            @PathVariable Long addressId) {
+
+        addLogTradeId();
+        log.info("UserController.removeAddress - START - User [{}] Address [{}]", userId, addressId);
+
+        userService.removeAddress(userId, addressId);
+
+        log.info("UserController.removeAddress - END");
+        MDC.clear();
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{userId}/addresses/{addressId}")
+    @Operation(summary = "Atualizar parcialmente um endereço do usuário")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Endereço atualizado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Usuário ou endereço não encontrado"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "500", description = "Erro interno")
+    })
+    public ResponseEntity<Void> updateAddress(
+            @PathVariable UUID userId,
+            @PathVariable Long addressId,
+            @RequestBody AddressPatchDTO dto) {
+
+        addLogTradeId();
+        log.info("UserController.updateAddress - START - User [{}] Address [{}]", userId, addressId);
+
+        userService.updateAddress(userId, addressId, dto);
+
+        log.info("UserController.updateAddress - END");
+        MDC.clear();
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{userId}/addresses")
+    @Operation(summary = "Adicionar novo endereço ao usuário")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Endereço criado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "500", description = "Erro interno")
+    })
+    public ResponseEntity<Long> addAddress(
+            @PathVariable UUID userId,
+            @RequestBody @Valid AddressCreateDTO dto) {
+
+        addLogTradeId();
+        log.info("UserController.addAddress - START - User [{}]", userId);
+
+        Long id = userService.addAddress(userId, dto);
+
+        log.info("UserController.addAddress - END");
+        MDC.clear();
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(id);
     }
 
     @GetMapping

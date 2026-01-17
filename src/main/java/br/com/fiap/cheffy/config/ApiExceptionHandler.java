@@ -1,7 +1,7 @@
 package br.com.fiap.cheffy.config;
+import br.com.fiap.cheffy.exceptions.model.Problem;
 import br.com.fiap.cheffy.model.enums.ExceptionsKeys;
 import br.com.fiap.cheffy.exceptions.*;
-import br.com.fiap.cheffy.exceptions.model.Problem;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.PropertyBindingException;
@@ -42,6 +42,25 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String INVALID_FORMAT_ERROR = ExceptionsKeys.INVALID_FORMAT_ERROR.toString();
     private static final String PROPERTY_BINDING_ERROR = ExceptionsKeys.PROPERTY_BINDING_ERROR.toString();
     private static final String GENERIC_RESOURCE_NOT_FOUND = ExceptionsKeys.GENERIC_RESOURCE_NOT_FOUND.toString();
+
+    @ExceptionHandler(OperationNotAllowedException.class)
+    private ResponseEntity<Object> handleOperationNotAllowedException(OperationNotAllowedException ex, WebRequest request) {
+
+        String title = getExceptionName(ex);
+        String message = getMessage(ex.getMessage()) ;
+
+        HttpStatus httpStatusCode = HttpStatus.BAD_REQUEST;
+
+        Problem problem = createProblemBuilder(
+                httpStatusCode,
+                title,
+                message)
+                .userMessage(message)
+                .build();
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), httpStatusCode, request);
+
+    }
 
     @ExceptionHandler(TokenExpiredException.class)
     private ResponseEntity<Object> handleTokenExpiredException(TokenExpiredException ex, WebRequest request) {

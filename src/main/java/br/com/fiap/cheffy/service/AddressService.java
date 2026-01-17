@@ -15,7 +15,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import static br.com.fiap.cheffy.model.enums.ExceptionsKeys.ADRESS_NOT_FOUND_EXCEPTION;
+import static br.com.fiap.cheffy.model.enums.ExceptionsKeys.ADDRESS_NOT_FOUND_EXCEPTION;
 
 
 @Slf4j
@@ -44,7 +44,7 @@ public class AddressService {
         return addressRepository.findById(id)
                 .map(address -> mapToDTO(address, new AddressDTO()))
                 .orElseThrow(() -> new NotFoundException(
-                        ADRESS_NOT_FOUND_EXCEPTION,
+                        ADDRESS_NOT_FOUND_EXCEPTION,
                         ENTITY_NAME,
                         id.toString()));
     }
@@ -58,7 +58,7 @@ public class AddressService {
     public void update(final Long id, final AddressDTO addressDTO) {
         final Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
-                        ADRESS_NOT_FOUND_EXCEPTION,
+                        ADDRESS_NOT_FOUND_EXCEPTION,
                         ENTITY_NAME,
                         id.toString()));
         mapToEntity(addressDTO, address);
@@ -68,7 +68,7 @@ public class AddressService {
     public void delete(final Long id) {
         final Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
-                        ADRESS_NOT_FOUND_EXCEPTION,
+                        ADDRESS_NOT_FOUND_EXCEPTION,
                         ENTITY_NAME,
                         id.toString()));
         addressRepository.delete(address);
@@ -99,7 +99,7 @@ public class AddressService {
         address.setMain(addressDTO.getMain());
         final User user = addressDTO.getUser() == null ? null : userRepository.findById(addressDTO.getUser())
                 .orElseThrow(() -> new NotFoundException(
-                        ADRESS_NOT_FOUND_EXCEPTION,
+                        ADDRESS_NOT_FOUND_EXCEPTION,
                         ENTITY_NAME,
                         addressDTO.getUser().toString()));
         address.setUser(user);

@@ -26,6 +26,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("""
             SELECT distinct u FROM User u 
                     JOIN FETCH u.profiles
+                    LEFT JOIN FETCH u.addresses
                 WHERE u.id = :id 
             """)
     Optional<User> findById(@Param("id") UUID id);
