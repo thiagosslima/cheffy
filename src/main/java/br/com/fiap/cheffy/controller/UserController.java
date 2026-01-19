@@ -76,10 +76,10 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado com o ID fornecido"),
             @ApiResponse(responseCode = "500", description = "Erro interno")
     })
-    public ResponseEntity<UserResponseDTO> getTbUser(@PathVariable(name = "id") final String id) {
+    public ResponseEntity<UserResponseDTO> getTbUser(@PathVariable(name = "id") final UUID id) {
         addLogTradeId();
         log.info("UserController.getTbUser - START - Find user by id [{}]", id);
-        var response = ResponseEntity.ok(userService.get(UUID.fromString(id)));
+        var response = ResponseEntity.ok(userService.get(id));
         log.info("UserController.getTbUser - END - User found [{}]", id);
         MDC.clear();
         return response;
@@ -174,11 +174,11 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro interno")
     })
-    public ResponseEntity<String> updatePassword(@PathVariable(name = "id") final String id,
+    public ResponseEntity<UUID> updatePassword(@PathVariable(name = "id") final UUID id,
                                                  @RequestBody @Valid final UserUpdatePasswordDTO userUpdatePasswordDTO) {
         addLogTradeId();
         log.info("UserController.updatePassword - START - Update password for user [{}]", id);
-        userService.updatePassword(UUID.fromString(id), userUpdatePasswordDTO);
+        userService.updatePassword(id, userUpdatePasswordDTO);
         var response = ResponseEntity.ok(id);
         log.info("UserController.updatePassword - END - Password updated for user [{}]", id);
         MDC.clear();
@@ -195,10 +195,10 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro interno")
     })
-    public ResponseEntity<Void> deleteUser(@PathVariable(name = "id") final String id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable(name = "id") final UUID id) {
         addLogTradeId();
         log.info("UserController.deleteUser - START - Delete user: [{}]", id);
-        userService.deleteUser(UUID.fromString(id));
+        userService.deleteUser(id);
         log.info("UserController.deleteUser - END - User deleted: [{}]", id);
         return ResponseEntity.noContent().build();
     }
