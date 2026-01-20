@@ -33,7 +33,6 @@ import java.util.Map;
 )
 public class OpenApiConfiguration {
     private static final List<String> EXCLUDED_PATHS = List.of(
-            "/api/v1/profiles",
             "/api/v1/addresses"
     );
 
