@@ -30,7 +30,7 @@ public class AddressPatchDTO {
     private String neighborhood;
 
     @NotBlankIfPresent
-    @Size(max = 255, min = 2)
+    @Size(max = 2)
     private String stateProvince;
 
     @NotBlankIfPresent

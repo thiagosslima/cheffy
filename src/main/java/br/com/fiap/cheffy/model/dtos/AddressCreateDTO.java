@@ -31,7 +31,7 @@ public class AddressCreateDTO {
     private String neighborhood;
 
     @NotBlank
-    @Size(max = 255)
+    @Size(max = 2)
     private String stateProvince;
 
     @Size(max = 255)
