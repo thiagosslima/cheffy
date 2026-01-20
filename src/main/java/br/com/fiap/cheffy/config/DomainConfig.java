@@ -1,7 +1,5 @@
 package br.com.fiap.cheffy.config;
 
-import java.time.OffsetDateTime;
-import java.util.Optional;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,10 +8,13 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import java.time.OffsetDateTime;
+import java.util.Optional;
+
 
 @Configuration
-@EntityScan("br.com.fiap.cheffy.domain")
-@EnableJpaRepositories("br.com.fiap.cheffy.repos")
+@EntityScan("br.com.fiap.cheffy.model")
+@EnableJpaRepositories("br.com.fiap.cheffy.repository")
 @EnableTransactionManagement
 @EnableJpaAuditing(dateTimeProviderRef = "auditingDateTimeProvider")
 public class DomainConfig {
