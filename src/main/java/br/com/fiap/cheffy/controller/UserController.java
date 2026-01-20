@@ -69,7 +69,7 @@ public class UserController {
     public ResponseEntity<Void> updateAddress(
             @PathVariable UUID userId,
             @PathVariable Long addressId,
-            @RequestBody AddressPatchDTO dto) {
+            @RequestBody @Valid AddressPatchDTO dto) {
 
         addLogTradeId();
         log.info("UserController.updateAddress - START - User [{}] Address [{}]", userId, addressId);
