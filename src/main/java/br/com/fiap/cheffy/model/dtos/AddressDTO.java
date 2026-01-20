@@ -1,5 +1,6 @@
 package br.com.fiap.cheffy.model.dtos;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -14,25 +15,25 @@ public class AddressDTO {
 
     private Long id;
 
-    @NotNull
+    @NotBlank
     @Size(max = 255)
     private String streetName;
 
     @NotNull
     private Integer number;
 
-    @NotNull
+    @NotBlank
     @Size(max = 255)
     private String city;
 
     @NotNull
     private Integer postalCode;
 
-    @NotNull
+    @NotBlank
     @Size(max = 255)
     private String neighborhood;
 
-    @NotNull
+    @NotBlank
     @Size(max = 255)
     private String stateProvince;
 
