@@ -14,7 +14,7 @@ public record UserCreateDTO(
 
         @NotBlank
         @Size(max = 255)
-        @Email
+        @Email(message = "O email deve ser válido")
         String email,
 
         @NotBlank

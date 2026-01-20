@@ -48,7 +48,7 @@ public class Address {
     private String city;
 
     @Column(nullable = false)
-    private Integer postalCode;
+    private String postalCode;
 
     @Column(nullable = false)
     private String neighborhood;

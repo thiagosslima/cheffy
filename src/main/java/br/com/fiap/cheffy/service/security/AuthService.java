@@ -31,10 +31,10 @@ public class AuthService {
                             loginRequestDTO.password()
                     )
             );
-        String token = jwtService.generateToken((AuthenticatedUser) authentication.getPrincipal());
+            String token = jwtService.generateToken((AuthenticatedUser) authentication.getPrincipal());
             return new TokenResponseDTO(token);
         } catch (AuthenticationException e) {
-            throw new LoginFailedException(LOGIN_FAILED_EXCEPTION,e.getMessage());
+            throw new LoginFailedException(LOGIN_FAILED_EXCEPTION, e.getMessage());
         }
     }
 

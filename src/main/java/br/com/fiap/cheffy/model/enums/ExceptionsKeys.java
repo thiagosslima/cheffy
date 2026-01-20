@@ -2,7 +2,6 @@ package br.com.fiap.cheffy.model.enums;
 
 public enum ExceptionsKeys {
 
-
     //General Error Messages
     GENERIC_RESOURCE_NOT_FOUND,
     PROPERTY_BINDING_ERROR,
@@ -17,7 +16,6 @@ public enum ExceptionsKeys {
 
     //Adress
     ADDRESS_NOT_FOUND_EXCEPTION,
-
 
     //User
     USER_NOT_FOUND_EXCEPTION,

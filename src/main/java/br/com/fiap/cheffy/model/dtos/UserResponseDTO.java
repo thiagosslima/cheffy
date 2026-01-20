@@ -31,4 +31,6 @@ public class UserResponseDTO {
     @NotNull
     private List<String> profiles;
 
+    private List<AddressResponseDTO> addresses;
+
 }

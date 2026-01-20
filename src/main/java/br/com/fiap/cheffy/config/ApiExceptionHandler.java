@@ -252,7 +252,6 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, problem, new HttpHeaders(), httpStatusCode, request);
     }
 
-    //Falback para tudo que não for tratado pelo ResponseEntityExceptionHandler
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleUncaught(Exception ex, WebRequest request) {
 

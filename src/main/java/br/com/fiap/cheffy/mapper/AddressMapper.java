@@ -2,6 +2,7 @@ package br.com.fiap.cheffy.mapper;
 
 import br.com.fiap.cheffy.model.dtos.AddressCreateDTO;
 import br.com.fiap.cheffy.model.dtos.AddressPatchDTO;
+import br.com.fiap.cheffy.model.dtos.AddressResponseDTO;
 import br.com.fiap.cheffy.model.entities.Address;
 import org.mapstruct.*;
 
@@ -13,5 +14,7 @@ public interface AddressMapper {
     void updateAddressFromDto(AddressPatchDTO dto, @MappingTarget Address entity);
 
     Address mapToEntity(AddressCreateDTO address);
+
+    AddressResponseDTO map(Address address);
 
 }

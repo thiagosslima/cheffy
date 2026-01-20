@@ -8,8 +8,6 @@ import java.util.UUID;
 
 public interface AddressRepository extends JpaRepository<Address, Long> {
 
-    Address findFirstByUserId(UUID id);
-    
     void deleteAllByUserId(UUID userId);
 
 }

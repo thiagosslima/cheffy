@@ -1,15 +1,17 @@
 package br.com.fiap.cheffy.model.dtos;
 
+import br.com.fiap.cheffy.validation.NotBlankIfPresent;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record UserUpdateDTO(
 
-        @Size(min = 3, max = 80, message = "Invalid name")
+        @NotBlankIfPresent
+        @Size(min = 3, max = 80)
         String name,
 
-        @Email(message = "e-mail is not valid")
+        @NotBlankIfPresent
+        @Email(message = "O email deve ser válido")
         String email
 ) {
 }

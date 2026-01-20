@@ -1,7 +1,9 @@
 package br.com.fiap.cheffy.model.dtos;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import br.com.fiap.cheffy.validation.NotBlankIfPresent;
+import br.com.fiap.cheffy.validation.PostalCode;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,29 +12,31 @@ import lombok.Setter;
 @Setter
 public class AddressPatchDTO {
 
-    @NotBlank
-    @Size(max = 255)
+    @NotBlankIfPresent
+    @Size(max = 255, min = 3)
     private String streetName;
 
-    @NotNull
+    @Positive
+    @Min(1)
     private Integer number;
 
-    @NotBlank
-    @Size(max = 255)
+    @NotBlankIfPresent
+    @Size(max = 255, min = 3)
     private String city;
 
-    @NotNull
-    private Integer postalCode;
+    @PostalCode
+    private String postalCode;
 
-    @NotBlank
-    @Size(max = 255)
+    @NotBlankIfPresent
+    @Size(max = 255, min = 3)
     private String neighborhood;
 
-    @NotBlank
-    @Size(max = 255)
+    @NotBlankIfPresent
+    @Size(max = 2)
     private String stateProvince;
 
-    @Size(max = 255)
+    @NotBlankIfPresent
+    @Size(max = 255, min = 3)
     private String addressLine;
 
     private Boolean main;

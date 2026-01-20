@@ -1,16 +1,17 @@
 package br.com.fiap.cheffy.service;
 
-import br.com.fiap.cheffy.model.entities.Profile;
 import br.com.fiap.cheffy.events.BeforeDeleteTbProfile;
 import br.com.fiap.cheffy.exceptions.NotFoundException;
 import br.com.fiap.cheffy.mapper.ProfileMapper;
 import br.com.fiap.cheffy.model.dtos.ProfileDTO;
+import br.com.fiap.cheffy.model.entities.Profile;
 import br.com.fiap.cheffy.repository.ProfileRepository;
-import java.util.List;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static br.com.fiap.cheffy.model.enums.ExceptionsKeys.PROFILE_NOT_FOUND_EXCEPTION;
 
@@ -41,7 +42,7 @@ public class ProfileService {
     public ProfileDTO get(final Long id) {
         return profileRepository.findById(id)
                 .map(mapper::mapToDTO)
-                .orElseThrow( () -> new NotFoundException(
+                .orElseThrow(() -> new NotFoundException(
                         PROFILE_NOT_FOUND_EXCEPTION,
                         ENTITY_NAME,
                         id.toString()
