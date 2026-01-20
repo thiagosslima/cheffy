@@ -222,6 +222,9 @@ public class UserService {
         log.info("UserService.deleteUser - CONTINUE - Clearing {} profile associations for user id: [{}]", user.getProfiles().size(), id);
         user.getProfiles().clear();
 
+        log.info("UserService.deleteUser - CONTINUE - Clearing {} Addresses associations for user id: [{}]", user.getAddresses().size(), id);
+        user.getAddresses().clear();
+
         userRepository.save(user);
         log.info("UserService.deleteUser - CONTINUE - Deleting user with id: [{}]", id);
 
