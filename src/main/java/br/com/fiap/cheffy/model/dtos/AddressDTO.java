@@ -1,5 +1,6 @@
 package br.com.fiap.cheffy.model.dtos;
 
+import br.com.fiap.cheffy.validation.PostalCode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -26,8 +27,8 @@ public class AddressDTO {
     @Size(max = 255)
     private String city;
 
-    @NotNull
-    private Integer postalCode;
+    @PostalCode
+    private String postalCode;
 
     @NotBlank
     @Size(max = 255)

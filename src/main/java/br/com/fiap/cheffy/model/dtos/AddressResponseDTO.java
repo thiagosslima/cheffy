@@ -15,7 +15,7 @@ public class AddressResponseDTO {
 
     private String city;
 
-    private Integer postalCode;
+    private String postalCode;
 
     private String neighborhood;
 

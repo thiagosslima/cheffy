@@ -1,6 +1,7 @@
 package br.com.fiap.cheffy.model.dtos;
 
 import br.com.fiap.cheffy.validation.NotBlankIfPresent;
+import br.com.fiap.cheffy.validation.PostalCode;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,10 +22,8 @@ public class AddressPatchDTO {
     @Size(max = 255, min = 3)
     private String city;
 
-    @Positive
-    @Min(8)
-    @Max(8)
-    private Integer postalCode;
+    @PostalCode
+    private String postalCode;
 
     @NotBlankIfPresent
     @Size(max = 255, min = 3)
