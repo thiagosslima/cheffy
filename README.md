@@ -40,73 +40,6 @@ Desenvolver um backend completo utilizando Spring Boot, implementando gestão de
 - **Docker** - Containerização
 - **Docker Compose** - Orquestração de containers
 
-## 📁 Estrutura do Projeto
-
-```
-cheffy/
-├── src/main/java/br/com/fiap/cheffy/
-│   ├── config/              # Configurações (Security, Swagger, Exception Handler)
-│   ├── controller/          # Controllers REST
-│   ├── service/             # Lógica de negócio
-│   │   └── security/        # Serviços de autenticação
-│   ├── repository/          # Acesso a dados (JPA)
-│   ├── model/
-│   │   ├── entities/        # Entidades JPA
-│   │   ├── dtos/            # Data Transfer Objects
-│   │   ├── enums/           # Enumerações
-│   │   └── security/        # Modelos de segurança
-│   ├── mapper/              # Mapeadores MapStruct
-│   ├── validation/          # Validações customizadas
-│   ├── exceptions/          # Exceções customizadas
-│   └── CheffyApplication.java
-├── src/main/resources/
-│   ├── application.properties
-│   ├── data.sql
-│   └── messages.properties
-├── docker-compose.yml
-├── Dockerfile
-├── pom.xml
-├── Cheffy_API_Collection.json
-└── DOCUMENTACAO_TECH_CHALLENGE.md
-```
-
-## 🎯 Funcionalidades Implementadas
-
-### ✅ Gestão de Usuários
-- Cadastro de usuários (Cliente e Dono de Restaurante)
-- Atualização de dados do usuário
-- Atualização de senha (endpoint separado)
-- Busca por ID, nome
-- Exclusão de usuários
-- Validação de email único
-- Auditoria automática (data de criação e última atualização)
-
-### ✅ Autenticação e Segurança
-- Login com JWT (JSON Web Token)
-- Autenticação stateless
-- Criptografia de senhas com BCrypt
-- Validação de senha forte (mínimo 12 caracteres)
-- Proteção de endpoints com Spring Security
-
-### ✅ Gestão de Endereços
-- Múltiplos endereços por usuário
-- Endereço principal
-- Adicionar, atualizar e remover endereços
-- Validação de pelo menos um endereço por usuário
-
-### ✅ Perfis de Usuário
-- Perfil Cliente (CLIENT)
-- Perfil Dono de Restaurante (OWNER)
-- Sistema extensível para novos perfis
-
-### ✅ Qualidade e Padrões
-- Arquitetura em camadas
-- Princípios SOLID
-- Tratamento de erros RFC 7807 (Problem Details)
-- Versionamento de API (/api/v1/)
-- Documentação Swagger/OpenAPI
-- Logging estruturado
-
 ## 🔧 Pré-requisitos
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado e em execução
@@ -118,7 +51,7 @@ cheffy/
 ### 1. Clonar o Repositório
 
 ```bash
-git clone https://github.com/[USUARIO]/cheffy.git
+git clone https://github.com/thiagosslima/cheffy.git
 cd cheffy
 ```
 
@@ -174,7 +107,7 @@ curl -X POST http://localhost:8080/api/v1/users \
       "streetName": "Rua Teste",
       "number": 123,
       "city": "São Paulo",
-      "postalCode": 12345678,
+      "postalCode": "12345678",
       "neighborhood": "Centro",
       "stateProvince": "SP",
       "main": true
@@ -215,7 +148,7 @@ docker compose down -v
 Acesse http://localhost:8080/swagger-ui.html para visualizar e testar todos os endpoints da API de forma interativa.
 
 ### Collection Postman
-Importe o arquivo [Cheffy_API_Collection.json](Cheffy_API_Collection.json) no Postman para testar todos os cenários:
+Importe o arquivo [Cheffy_API_Collection.json](https://github.com/thiagosslima/cheffy/blob/develop/src/main/resources/Cheffy_Postman_Collection.json) no Postman para testar todos os cenários:
 - Autenticação
 - CRUD de usuários
 - Gerenciamento de endereços
@@ -237,13 +170,6 @@ O projeto segue uma arquitetura em camadas:
 └─────────────────────────────────────┘
 ```
 
-### Princípios SOLID Aplicados
-- **S**ingle Responsibility: Cada classe tem uma única responsabilidade
-- **O**pen/Closed: Aberto para extensão, fechado para modificação
-- **L**iskov Substitution: Subtipos podem substituir tipos base
-- **I**nterface Segregation: Interfaces específicas e coesas
-- **D**ependency Inversion: Dependência de abstrações
-
 ## 🔐 Segurança
 
 - **Autenticação JWT**: Tokens stateless com expiração de 1 hora
@@ -252,44 +178,6 @@ O projeto segue uma arquitetura em camadas:
 - **HTTPS Ready**: Preparado para uso com certificados SSL/TLS
 - **CORS**: Configurável para ambientes de produção
 - **SQL Injection Protection**: Uso de JPA/Hibernate com prepared statements
-
-## 📊 Banco de Dados
-
-### Entidades Principais
-- **User**: Usuários do sistema
-- **Profile**: Perfis de acesso (CLIENT, OWNER)
-- **Address**: Endereços dos usuários
-
-### Relacionamentos
-- User ↔ Profile (Many-to-Many)
-- User → Address (One-to-Many)
-
-## 🧪 Testes
-
-### Collection Postman
-A collection inclui testes para:
-- ✅ Cadastro válido e inválido
-- ✅ Login com credenciais válidas e inválidas
-- ✅ Busca de usuários
-- ✅ Atualização de dados
-- ✅ Atualização de senha
-- ✅ Gerenciamento de endereços
-- ✅ Validações e tratamento de erros
-
-## 📝 Endpoints Principais
-
-| Método | Endpoint | Descrição | Auth |
-|--------|----------|-----------|------|
-| POST | `/api/v1/auth/login` | Autenticar usuário | Não |
-| POST | `/api/v1/users` | Criar usuário | Não |
-| GET | `/api/v1/users` | Listar usuários | Sim |
-| GET | `/api/v1/users/{id}` | Buscar por ID | Sim |
-| GET | `/api/v1/users/name/{name}` | Buscar por nome | Sim |
-| PATCH | `/api/v1/users/{id}` | Atualizar dados | Sim |
-| PATCH | `/api/v1/users/{id}/password` | Atualizar senha | Sim |
-| DELETE | `/api/v1/users/{id}` | Deletar usuário | Sim |
-| POST | `/api/v1/users/{userId}/addresses` | Adicionar endereço | Sim |
-| GET | `/api/v1/profiles` | Listar perfis | Não |
 
 ## 🛠️ Desenvolvimento Local (Sem Docker)
 
