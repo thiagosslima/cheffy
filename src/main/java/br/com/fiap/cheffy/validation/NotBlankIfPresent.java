@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NotBlankIfPresent {
 
-    String message() default "Must not be blank";
+    String message() default "O campo não pode estar em branco se presente";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
