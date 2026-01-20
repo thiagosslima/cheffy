@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,7 +18,16 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByEmailIgnoreCase(String email);
 
-    Optional<User> findByName(String name);
+    @EntityGraph(attributePaths = {"profiles", "addresses"})
+    List<User> findAll();
+
+    @Query("""
+            SELECT distinct u FROM User u 
+                    JOIN FETCH u.profiles
+                    LEFT JOIN FETCH u.addresses
+                WHERE u.name = :name 
+            """)
+    Optional<User> findByName(@Param("name") String name);
 
     Optional<User> findByEmail(String email);
 
