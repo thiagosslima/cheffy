@@ -1,9 +1,9 @@
 package br.com.fiap.cheffy.mapper;
 
-import br.com.fiap.cheffy.model.entities.Profile;
-import br.com.fiap.cheffy.model.entities.User;
 import br.com.fiap.cheffy.model.dtos.UserCreateDTO;
 import br.com.fiap.cheffy.model.dtos.UserResponseDTO;
+import br.com.fiap.cheffy.model.entities.Profile;
+import br.com.fiap.cheffy.model.entities.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;

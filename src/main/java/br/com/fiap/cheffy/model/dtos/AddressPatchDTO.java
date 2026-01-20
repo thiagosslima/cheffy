@@ -2,7 +2,9 @@ package br.com.fiap.cheffy.model.dtos;
 
 import br.com.fiap.cheffy.validation.NotBlankIfPresent;
 import br.com.fiap.cheffy.validation.PostalCode;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 

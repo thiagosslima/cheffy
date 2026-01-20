@@ -14,6 +14,8 @@ import java.lang.annotation.Target;
 public @interface PostalCode {
 
     String message() default "CEP inválido";
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

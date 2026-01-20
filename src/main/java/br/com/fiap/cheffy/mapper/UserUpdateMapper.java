@@ -1,7 +1,7 @@
 package br.com.fiap.cheffy.mapper;
 
-import br.com.fiap.cheffy.model.entities.User;
 import br.com.fiap.cheffy.model.dtos.UserUpdateDTO;
+import br.com.fiap.cheffy.model.entities.User;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")

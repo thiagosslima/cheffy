@@ -3,7 +3,10 @@ package br.com.fiap.cheffy.service.security;
 import br.com.fiap.cheffy.config.properties.JwtProperties;
 import br.com.fiap.cheffy.exceptions.TokenExpiredException;
 import br.com.fiap.cheffy.model.security.AuthenticatedUser;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +32,7 @@ public class JwtService {
         this.issuer = props.getIssuer();
     }
 
-       public String generateToken(AuthenticatedUser user) {
+    public String generateToken(AuthenticatedUser user) {
         return Jwts.builder()
                 .setId(user.getId().toString())
                 .setSubject(user.getUsername())
@@ -51,7 +54,7 @@ public class JwtService {
 
             return "access_token".equals(claims.get("type"));
 
-        } catch (TokenExpiredException e){
+        } catch (TokenExpiredException e) {
             throw e;
         } catch (Exception ex) {
             return false;
@@ -60,7 +63,7 @@ public class JwtService {
 
     private Claims parseClaims(String token) {
         try {
-           return Jwts.parserBuilder()
+            return Jwts.parserBuilder()
                     .setSigningKey(key)
                     .requireIssuer(issuer)
                     .build()

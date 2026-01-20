@@ -1,23 +1,20 @@
 package br.com.fiap.cheffy.service;
 
-import br.com.fiap.cheffy.exceptions.InvalidOperationException;
-import br.com.fiap.cheffy.mapper.AddressMapper;
-import br.com.fiap.cheffy.model.dtos.*;
-import br.com.fiap.cheffy.model.entities.Address;
-import br.com.fiap.cheffy.model.enums.ProfileType;
-import br.com.fiap.cheffy.model.entities.Profile;
-import br.com.fiap.cheffy.model.entities.User;
 import br.com.fiap.cheffy.events.BeforeDeleteTbProfile;
 import br.com.fiap.cheffy.events.BeforeDeleteTbUser;
+import br.com.fiap.cheffy.exceptions.InvalidOperationException;
 import br.com.fiap.cheffy.exceptions.NotFoundException;
 import br.com.fiap.cheffy.exceptions.RegisterFailedException;
+import br.com.fiap.cheffy.mapper.AddressMapper;
 import br.com.fiap.cheffy.mapper.UserMapper;
 import br.com.fiap.cheffy.mapper.UserUpdateMapper;
+import br.com.fiap.cheffy.model.dtos.*;
+import br.com.fiap.cheffy.model.entities.Address;
+import br.com.fiap.cheffy.model.entities.Profile;
+import br.com.fiap.cheffy.model.entities.User;
+import br.com.fiap.cheffy.model.enums.ProfileType;
 import br.com.fiap.cheffy.repository.ProfileRepository;
 import br.com.fiap.cheffy.repository.UserRepository;
-
-import java.util.*;
-
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -26,6 +23,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 import static br.com.fiap.cheffy.model.enums.ExceptionsKeys.*;
 
@@ -163,7 +165,7 @@ public class UserService {
     }
 
     private void throwExceptionCaseLoginOrEmailAlreadyExists(User user) {
-        if(userRepository.existsByEmailOrLogin(user.getEmail(), user.getLogin())) {
+        if (userRepository.existsByEmailOrLogin(user.getEmail(), user.getLogin())) {
             throw new RegisterFailedException(REGISTER_FAILED_EXCEPTION);
         }
     }
@@ -187,7 +189,7 @@ public class UserService {
 
         log.info("UserService.update - CONTINUE - Found user: [{}]", id);
 
-        if(userUpdateDTO.email() != null && existsUserWithEmail(userUpdateDTO.email(), id)){
+        if (userUpdateDTO.email() != null && existsUserWithEmail(userUpdateDTO.email(), id)) {
             log.warn("UserService.update - Attempt to use existing email. User: [{}], Email: [{}]", id, userUpdateDTO.email());
             throw new InvalidOperationException();
         }

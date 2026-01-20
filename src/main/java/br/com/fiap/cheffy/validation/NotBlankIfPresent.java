@@ -14,6 +14,8 @@ import java.lang.annotation.Target;
 public @interface NotBlankIfPresent {
 
     String message() default "O campo não pode estar em branco se presente";
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

@@ -9,4 +9,5 @@ public record LoginRequestDTO(
 
         @NotBlank
         String password
-) {}
+) {
+}
